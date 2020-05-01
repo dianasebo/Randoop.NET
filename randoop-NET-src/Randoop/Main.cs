@@ -53,24 +53,24 @@ namespace Randoop
         {
             Console.WriteLine();
             Console.WriteLine("Randoop.NET: an API fuzzer for .Net. Version {0} (compiled {1}).",
-                Common.Enviroment.RandoopVersion, Common.Enviroment.RandoopCompileDate);
+                Enviroment.RandoopVersion, Enviroment.RandoopCompileDate);
 
             if (args.Length == 0 || IsHelpCommand(args[0]))
             {
                 Console.Error.WriteLine(HelpScreen.Usagestring());
-                System.Environment.Exit(1);
+                Environment.Exit(1);
             }
 
             if (ContainsHelp(args))
             {
                 Console.WriteLine(HelpScreen.Usagestring());
-                System.Environment.Exit(0);
+                Environment.Exit(0);
             }
 
             if (args[0].Equals("/about"))
             {
                 WriteAboutMessageToConsole();
-                System.Environment.Exit(0);
+                Environment.Exit(0);
             }
 
             //xiao.qu@us.abb.com adds "RandoopMappedCalls"
@@ -97,49 +97,30 @@ namespace Randoop
                 catch(Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    System.Environment.Exit(-1);
+                    Environment.Exit(-1);
                 }
 
-                System.Environment.Exit(0);
+                Environment.Exit(0);
             }
-            //xiao.qu@us.abb.com adds "RandoopMappedCalls"
 
             if (args[0].Equals("minimize"))
             {
-                string[] args2 = new string[args.Length - 1];
-                Array.Copy(args, 1, args2, 0, args.Length - 1);
-                TestCaseUtils.Minimize(TestCaseUtils.CollectFilesEndingWith(".cs", args2));
-                System.Environment.Exit(0);
+                HandleMinimization(args);
             }
 
             if (args[0].Equals("reduce"))
             {
-                string[] args2 = new string[args.Length - 1];
-                Array.Copy(args, 1, args2, 0, args.Length - 1);
-                Collection<FileInfo> oldTests = TestCaseUtils.CollectFilesEndingWith(".cs", args2);
-                Console.WriteLine("Number of original tests: " + oldTests.Count);
-                Collection<FileInfo> newTests = Reducer.Reduce(oldTests);
-                Console.WriteLine("Number of reduced tests: " + newTests.Count);
-                Environment.Exit(0);
+                HandleReduction(args, Reducer.Reduce);
             }
 
-            if (args[0].Equals("reduce2")) //xiao.qu@us.abb.com adds for sequence-based reduction
+            if (args[0].Equals("reduce2"))
             {
-                string[] args2 = new string[args.Length - 1];
-                Array.Copy(args, 1, args2, 0, args.Length - 1);
-                Collection<FileInfo> oldTests = TestCaseUtils.CollectFilesEndingWith(".cs", args2);
-                Console.WriteLine("Number of original tests: " + oldTests.Count);
-                Collection<FileInfo> newTests = SequenceBasedReducer.Reduce(oldTests);
-                Console.WriteLine("Number of reduced tests: " + newTests.Count);
-                System.Environment.Exit(0);
+                HandleReduction(args, SequenceBasedReducer.Reduce);
             }
 
             if (args[0].Equals("reproduce"))
             {
-                string[] args2 = new string[args.Length - 1];
-                Array.Copy(args, 1, args2, 0, args.Length - 1);
-                TestCaseUtils.ReproduceBehavior(TestCaseUtils.CollectFilesEndingWith(".cs", args2));
-                System.Environment.Exit(0);
+                HandleReproduction(args);
             }
 
             if (args[0].StartsWith("stats:"))
@@ -151,10 +132,37 @@ namespace Randoop
 
                 StatsManager.ComputeStats(statsResultsFileName,
                     TestCaseUtils.CollectFilesEndingWith(".stats.txt", args2));
-                System.Environment.Exit(0);
+                Environment.Exit(0);
             }
 
             GenerateTests(args);
+        }
+
+        private static void HandleReproduction(string[] args)
+        {
+            string[] args2 = new string[args.Length - 1];
+            Array.Copy(args, 1, args2, 0, args.Length - 1);
+            TestCaseUtils.ReproduceBehavior(TestCaseUtils.CollectFilesEndingWith(".cs", args2));
+            Environment.Exit(0);
+        }
+
+        private static void HandleMinimization(string[] args)
+        {
+            string[] args2 = new string[args.Length - 1];
+            Array.Copy(args, 1, args2, 0, args.Length - 1);
+            TestCaseUtils.Minimize(TestCaseUtils.CollectFilesEndingWith(".cs", args2));
+            Environment.Exit(0);
+        }
+
+        private static void HandleReduction(string[] args, Func<Collection<FileInfo>, Collection<FileInfo>> reduction)
+        {
+            string[] args2 = new string[args.Length - 1];
+            Array.Copy(args, 1, args2, 0, args.Length - 1);
+            Collection<FileInfo> oldTests = TestCaseUtils.CollectFilesEndingWith(".cs", args2);
+            Console.WriteLine("Number of original tests: " + oldTests.Count);
+            Collection<FileInfo> newTests = reduction(oldTests);
+            Console.WriteLine("Number of reduced tests: " + newTests.Count);
+            Environment.Exit(0);
         }
 
         private static bool ContainsHelp(string[] args)
@@ -181,7 +189,7 @@ namespace Randoop
             if (errorMessage != null)
             {
                 Console.WriteLine("Error in command-line arguments: " + errorMessage);
-                System.Environment.Exit(1);
+                Environment.Exit(1);
             }
 
             //CheckAssembliesExist(args);
@@ -199,7 +207,7 @@ namespace Randoop
             try
             {
                 // Create temporary directory.
-                tempDir = Common.TempDir.CreateTempDir();
+                tempDir = TempDir.CreateTempDir();
 
                 // Determine output directory.
                 string outputDir;
@@ -208,7 +216,7 @@ namespace Randoop
                     // The output directory's name is calculated based on
                     // the day and time that this invocation of Randoop occurred.
                     outputDir =
-                        System.Environment.CurrentDirectory
+                        Environment.CurrentDirectory
                         + "\\randoop_output\\"
                         + CalculateOutputDirBase();
                 }
@@ -275,7 +283,7 @@ namespace Randoop
                 Console.WriteLine("*** Randoop error. "
                     + "Please report this error to Randoop's developers.");
                 Console.WriteLine(e);
-                System.Environment.Exit(1);
+                Environment.Exit(1);
             }
             finally
             {
@@ -300,18 +308,6 @@ namespace Randoop
             foreach (FileInfo fi in TestCaseUtils.CollectFilesEndingWith(".stats.txt", outputDir))
             {
                 fi.Delete();
-            }
-        }
-
-        private static void CheckAssembliesExist(CommandLineArguments args)
-        {
-            foreach (string s in args.AssemblyNames)
-            {
-                if (!File.Exists(s))
-                {
-                    Console.WriteLine("Assembly file does not exist: " + s);
-                    System.Environment.Exit(1);
-                }
             }
         }
 
@@ -393,14 +389,14 @@ namespace Randoop
             // Randoop terminated with error.
             if (p.ExitCode != 0)
             {
-                if (err.Contains(Common.Enviroment.RandoopBareInternalErrorMessage))
+                if (err.Contains(Enviroment.RandoopBareInternalErrorMessage))
                 {
                     Console.WriteLine(err);
                     Console.WriteLine("*** RandoopBare had an internal error. Exiting.");
                     return p.ExitCode;
                 }
 
-                if (err.Contains(Common.Enviroment.RandoopBareInvalidUserParametersErrorMessage))
+                if (err.Contains(Enviroment.RandoopBareInvalidUserParametersErrorMessage))
                 {
                     Console.WriteLine(err);
                     Console.WriteLine("*** RandoopBare terminated normally. Exiting.");
@@ -460,7 +456,7 @@ namespace Randoop
             Console.WriteLine();
             Console.WriteLine("Results written to " + resultsDir + ".");
             Console.WriteLine("You can browse the results by opening the file "
-                + System.Environment.NewLine
+                + Environment.NewLine
                 + "   " + resultsDir + "\\index.html");
 
             return true;
@@ -468,7 +464,7 @@ namespace Randoop
 
         private static string CalculateOutputDirBase()
         {
-            System.DateTime now = System.DateTime.Now;
+            DateTime now = DateTime.Now;
 
             return
             "run_"
@@ -524,48 +520,28 @@ namespace Randoop
             }
 
         }
-
-        private static string WrapInDHandler(string randoopCommand)
-        {
-            StringBuilder b = new StringBuilder();
-            b.Append("/O:\" "
-                + Common.Enviroment.RandoopHome
-                + "\\randoopruntime\\pagehandleroutput.txt"
-                + "\"");
-            b.Append(" /I:"
-                + "\""
-                + Common.Enviroment.DefaultDhi
-                + "\"");
-            b.Append(" /App:\"" + randoopCommand + "\"");
-            return b.ToString();
-        }
-
-
-       
-
+                     
         private static void WriteAboutMessageToConsole()
         {
             Console.WriteLine("Version "
-            + Common.Enviroment.RandoopVersion
+            + Enviroment.RandoopVersion
             + "."
-            + System.Environment.NewLine
+            + Environment.NewLine
             + "Compiled on "
-            + Common.Enviroment.RandoopCompileDate
+            + Enviroment.RandoopCompileDate
             + "."
-            + System.Environment.NewLine
-            + System.Environment.NewLine
+            + Environment.NewLine
+            + Environment.NewLine
             + "Credits"
-            + System.Environment.NewLine
+            + Environment.NewLine
             + "  Authors: Carlos Pacheco (t-carpac)"
-            + System.Environment.NewLine
+            + Environment.NewLine
             + "           Shuvendu Lahiri (shuvendu)"
-            + System.Environment.NewLine
+            + Environment.NewLine
             + "           Tom Ball (tball)"
-            //+ System.Environment.NewLine
-            //+ "  DHandler pop-up blocker by Jeff Schwartz (jeffschw)"
-            + System.Environment.NewLine
+            + Environment.NewLine
             + "  Help and guidance from Scott Wadsworth and Eugene Bobukh."
-            + System.Environment.NewLine
+            + Environment.NewLine
             );
         }
 
@@ -574,7 +550,7 @@ namespace Randoop
             Console.WriteLine("Results statistics:");
             foreach (TestCase.ExceptionDescription message in testsByMessage.Keys)
             {
-                String testCount =
+                string testCount =
                     testsByMessage[message].Count
                     + " test"
                     + (testsByMessage[message].Count > 1 ? "s" : "")
@@ -587,7 +563,7 @@ namespace Randoop
         private static void PageHeapDisableRandoop()
         {
             Process p = new Process();
-            p.StartInfo.FileName = Common.Enviroment.PageHeap;
+            p.StartInfo.FileName = Enviroment.PageHeap;
             p.StartInfo.Arguments = "/disable randoopbare.exe";
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.ErrorDialog = true;
@@ -679,7 +655,6 @@ namespace Randoop
             StreamWriter w = new StreamWriter(newConfigFileName);
             w.WriteLine(methodName);
             w.Close();
-
         }
 
     }
