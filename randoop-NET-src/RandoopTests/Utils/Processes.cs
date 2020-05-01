@@ -10,12 +10,9 @@
 //*********************************************************
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
-using Common;
-using Randoop;
 using System.IO;
+using System.Text;
 
 namespace RandoopTests
 {

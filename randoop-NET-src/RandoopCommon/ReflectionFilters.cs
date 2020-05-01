@@ -11,13 +11,11 @@
 
 
 
+using Common;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Reflection;
 using System.Collections.ObjectModel;
-using System.Text.RegularExpressions;
-using Common;
+using System.Reflection;
 
 namespace Randoop
 {

@@ -86,11 +86,15 @@
   <ItemGroup>
     <Compile Include="ActionSet.cs" />
     <Compile Include="Environment.cs" />
+    <Compile Include="EquivalenceClass.cs" />
+    <Compile Include="Reducer.cs" />
+    <Compile Include="SequenceBasedEquivalenceClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandoopBareExceptions.cs" />
     <Compile Include="RandoopConfigurationFile.cs" />
     <Compile Include="RandoopMappedExceptions.cs" />
     <Compile Include="ReflectionFilters.cs" />
+    <Compile Include="SequenceBasedReducer.cs" />
     <Compile Include="StatsManager.cs" />
     <Compile Include="TestCase.cs" />
     <Compile Include="TestCaseUtils.cs" />

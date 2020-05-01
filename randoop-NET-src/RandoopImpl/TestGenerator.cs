@@ -11,18 +11,13 @@
 
 //#define PRINT_FAIR_RANDOOP_LOG
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Reflection;
-using System.Diagnostics;
-using System.Collections;
-using System.IO;
-using System.Xml;
-using System.Xml.Schema;
 using Common;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Security;
+using System.IO;
+using System.Reflection;
 
 namespace Randoop
 {
@@ -98,9 +93,6 @@ namespace Randoop
         public void Explore(ITimer timer, PlanManager planManager, MethodWeighing methodWeigthing,
             bool forbidNull, bool mutateFields, bool fairOpt)
         {
-            int currentPlans = planManager.Plans;
-            int currentRedundantAdds = planManager.RedundantAdds;
-
             // Start timing test generation.
             Timer.QueryPerformanceCounter(ref TimeTracking.generationStartTime);
 
@@ -117,8 +109,6 @@ namespace Randoop
 
                 for (; ; )
                 {
-
-
                     //field setting
                     if (mutateFields && this.actions.fieldList.Count > 0 && Common.Enviroment.Random.Next(2) == 0)
                         NewFieldSettingPlan(this.actions.RandomField(), planManager, forbidNull);
@@ -142,7 +132,7 @@ namespace Randoop
 
                         try
                         {
-                            m = this.actions.RandomActiveMethodorConstructor(activeMembers, t);
+                            m = actions.RandomActiveMethodorConstructor(activeMembers, t);
                         }
                         catch (Exception e)
                         {

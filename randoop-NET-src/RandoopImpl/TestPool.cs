@@ -9,12 +9,10 @@
 //
 //*********************************************************
 
+using Common;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Collections.ObjectModel;
-using System.Reflection;
-using Common;
 using System.IO;
 
 namespace Randoop

@@ -9,15 +9,6 @@
 //
 //*********************************************************
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Common;
-using System.Reflection;
-using System.Collections.ObjectModel;
-using System.CodeDom.Compiler;
-using Randoop;
-
 namespace RandoopTests
 {
     sealed public class Test

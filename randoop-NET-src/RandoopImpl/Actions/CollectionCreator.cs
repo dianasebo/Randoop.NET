@@ -12,18 +12,8 @@
 
 
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Reflection;
-using System.Diagnostics;
-using System.Collections;
-using System.IO;
-using System.Xml;
-using System.Xml.Schema;
-using System.Security;
 using Common;
-using System.Collections.ObjectModel;
+using System;
 
 namespace Randoop
 {

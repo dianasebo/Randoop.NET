@@ -9,11 +9,7 @@
 //
 //*********************************************************
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Common;
-using System.Diagnostics;
 
 namespace RandoopTests
 {

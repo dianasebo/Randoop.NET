@@ -11,15 +11,12 @@
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Diagnostics;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Security;
-using System.Reflection.Emit; //xiao.qu@us.abb.com
-using System.Windows.Forms; //xiao.qu@us.abb.com
+using System.Text;
 
 namespace Common
 {

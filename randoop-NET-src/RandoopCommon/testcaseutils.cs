@@ -13,10 +13,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.CodeDom.Compiler;
 
 namespace Common
 {
@@ -24,7 +22,7 @@ namespace Common
     /// A collection of static methods that perform operations
     /// on TestCases.
     /// </summary>
-    public class TestCaseUtils
+    public static class TestCaseUtils
     {
         public static Collection<FileInfo> CollectFilesEndingWith(string endString, params string[] fileNames)
         {
@@ -46,8 +44,7 @@ namespace Common
 
         public static Collection<FileInfo> CollectFilesEndingWith(string endString, DirectoryInfo resultsDir)
         {
-            Collection<DirectoryInfo> allDirs = new Collection<DirectoryInfo>();
-            allDirs.Add(resultsDir);
+            Collection<DirectoryInfo> allDirs = new Collection<DirectoryInfo> { resultsDir };
             foreach (DirectoryInfo di in resultsDir.GetDirectories("*", SearchOption.AllDirectories))
             {
                 allDirs.Add(di);
@@ -95,7 +92,6 @@ namespace Common
                     Console.WriteLine("Test " + oneTest + ": removed " + linesRemoved + " lines.");
             }
         }
-
 
         public static int Minimize(FileInfo testPath)
         {
@@ -155,201 +151,6 @@ namespace Common
             return reproducibleTests;
         }
 
-
-        private class EquivClass
-        {
-            public readonly TestCase representative;
-
-            public EquivClass(TestCase testCase)
-            {
-                if (testCase == null) throw new ArgumentNullException();
-                this.representative = testCase;
-            }
-
-            public override bool Equals(object obj)
-            {
-                EquivClass other = obj as EquivClass;
-                if (other == null) return false;
-                if (!this.representative.exception.Equals(other.representative.exception)) // if "throw the same exception"
-                    return false;
-                if (!this.representative.lastAction.Equals(other.representative.lastAction)) // if "end with the same method call" 
-                    return false;
-                return true;
-            }
-
-            public override int GetHashCode()
-            {
-                return this.representative.lastAction.GetHashCode() + 3 ^ this.representative.exception.GetHashCode();
-            }
-
-            public override string ToString()
-            {
-                return "<equivalence class lastAction=\"" + this.representative.lastAction
-                + "\" exception=\"" + this.representative.exception + "\">";
-            }
-        }
-
-        public static Collection<FileInfo> Reduce(Collection<FileInfo> tests)
-        {
-            Dictionary<EquivClass, TestCase> representatives = new Dictionary<EquivClass, TestCase>();
-            Dictionary<EquivClass, FileInfo> representativesFileInfos = new Dictionary<EquivClass, FileInfo>();
-
-
-            foreach (FileInfo file in tests)
-            {
-                TestCase testCase;
-                try
-                {
-                    testCase = new TestCase(file);
-                }
-                catch (Exception)
-                {
-                    // File does not contain a valid test case, or
-                    // test case is malformed.
-                    continue;
-                }
-
-
-                EquivClass partition = new EquivClass(testCase);
-                // If there are no representatives for this partition,
-                // use testCase as the representative.
-                if (!representatives.ContainsKey(partition))
-                {
-                    representatives[partition] = testCase;
-                    representativesFileInfos[partition] = file;
-                }
-                // if testCase is smaller than the current representative,
-                // use testCase as the representative.
-                // Delete the old representative.
-                else if (testCase.NumTestLines < representatives[partition].NumTestLines)
-                {
-                    //representativesFileInfos[partition].Delete();
-                    representativesFileInfos[partition].MoveTo(representativesFileInfos[partition].FullName + ".reduced");
-
-                    representatives[partition] = testCase;
-                    representativesFileInfos[partition] = file;
-                }
-                // Representative is redundant and larger than current representative.
-                // Delete representative.
-                else
-                {
-                    //file.Delete();
-                    file.MoveTo(file.FullName+ ".reduced");
-                }
-            }
-
-            List<FileInfo> retval = new List<FileInfo>();
-            retval.AddRange(representativesFileInfos.Values);
-            return new Collection<FileInfo>(retval);
-        }
-
-#region sequence-based reducer implemented by xiao.qu@us.abb.com on 11/05/2012 
-
-        private class EquivClass2
-        {
-            public readonly TestCase representative;
-
-            public EquivClass2(TestCase testCase)
-            {
-                if (testCase == null) throw new ArgumentNullException();
-                this.representative = testCase;
-            }
-
-            public override bool Equals(object obj)
-            {
-                EquivClass2 other = obj as EquivClass2;
-                if (other == null) return false;
-
-                string testPlans = getSequence(this.representative.testPlanCollection);
-                string testPlans2 = getSequence(other.representative.testPlanCollection);
-
-                if (testPlans.Contains(testPlans2))
-                    return true;
-                if (testPlans2.Contains(testPlans))
-                    return true;
-                return false;
-            }
-
-            public override int GetHashCode()
-            {
-                return this.representative.lastAction.GetHashCode() + 3 ^ this.representative.exception.GetHashCode();
-            }
-
-            public string getSequence(Collection<string> testplans)
-            {
-                string testSequence = "";
-
-                foreach (string planline in testplans)
-                {
-                    string test = planline.Substring(0, planline.IndexOf("transformer"));
-                    testSequence += test;
-                }
-
-                return testSequence;
-            }
-
-            public override string ToString()
-            {
-                return "<equivalence class lastAction=\"" + this.representative.lastAction
-                + "\" exception=\"" + this.representative.exception + "\">";
-            }
-        }
-
-        public static Collection<FileInfo> Reduce2(Collection<FileInfo> tests) 
-        {
-            Dictionary<EquivClass2, TestCase> representatives = new Dictionary<EquivClass2, TestCase>();
-            Dictionary<EquivClass2, FileInfo> representativesFileInfos = new Dictionary<EquivClass2, FileInfo>();
-
-
-            foreach (FileInfo file in tests)
-            {
-                TestCase testCase;
-                try
-                {
-                    testCase = new TestCase(file);
-                }
-                catch (Exception)
-                {
-                    // File does not contain a valid test case, or
-                    // test case is malformed.
-                    continue;
-                }
-
-
-                EquivClass2 partition = new EquivClass2(testCase);
-                // If there are no representatives for this partition,
-                // use testCase as the representative.
-                if (!representatives.ContainsKey(partition))
-                {
-                    representatives[partition] = testCase;
-                    representativesFileInfos[partition] = file;
-                }
-                // if testCase is larger than the current representative (the current test sequence is a subset),
-                // use testCase as the representative.
-                // Delete the old representative.
-                else if (testCase.NumTestLines > representatives[partition].NumTestLines)
-                {
-                    //representativesFileInfos[partition].Delete();
-                    representativesFileInfos[partition].MoveTo(representativesFileInfos[partition].FullName + ".reduced");
-                    representatives[partition] = testCase;
-                    representativesFileInfos[partition] = file;
-                }
-                // sequence of testCase is a subset of the sequence of current representative.
-                // Delete testCase.
-                else
-                {
-                    //file.Delete();
-                    file.MoveTo(file.FullName+".reduced");
-                }
-            }
-
-            List<FileInfo> retval = new List<FileInfo>();
-            retval.AddRange(representativesFileInfos.Values);
-            return new Collection<FileInfo>(retval);
-        }
-
-#endregion //sequence-based reducer implemented by xiao.qu@us.abb.com on 11/05/2012
-
         public static Dictionary<TestCase.ExceptionDescription, Collection<FileInfo>>
           ClassifyTestsByMessage(Collection<FileInfo> tests)
         {
@@ -404,48 +205,6 @@ namespace Common
                 return true;
 
             return false;
-        }
-
-        public static void WriteTestCasesAsUnitTest(
-            TextWriter writer,
-            string @namespace, 
-            string typeName, 
-            string testName,
-            IEnumerable<TestCase> tests)
-        {
-            // collect imports
-            var imports = new Dictionary<string, string>();
-            imports.Add("Microsoft.VisualStudio.TestTools.UnitTesting", null);
-            foreach (var test in tests)
-                foreach (var import in test.Imports)
-                    imports[import] = null;
-
-            // start emitting file
-            var w = new IndentedTextWriter(writer);
-            foreach (var import in imports)
-                w.WriteLine("using {0};", import);
-
-            w.WriteLine("namespace {0}", @namespace);
-            w.WriteLine("{");
-            w.Indent++;
-            {
-                w.WriteLine("[TestClass]");
-                w.WriteLine("public partial class {0}", typeName);
-                w.WriteLine("{");
-                w.Indent++;
-                {
-                    int testCount = 0;
-                    foreach (var test in tests)
-                    {
-                        string testID = testCount.ToString("000");
-                        test.WriteAsUnitTest(w, testName + testID);
-                        w.WriteLine();
-                    }
-                }
-                w.Indent--;
-            }
-            w.Indent--;
-            w.WriteLine("}");
         }
 
     }

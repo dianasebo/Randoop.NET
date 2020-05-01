@@ -11,13 +11,13 @@
 
 
 
+using Common;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.IO;
 using System.Collections.ObjectModel;
-using Common;
 using System.Diagnostics;
+using System.IO;
+using System.Text;
 
 namespace Randoop
 {
@@ -118,18 +118,9 @@ namespace Randoop
                 Array.Copy(args, 1, args2, 0, args.Length - 1);
                 Collection<FileInfo> oldTests = TestCaseUtils.CollectFilesEndingWith(".cs", args2);
                 Console.WriteLine("Number of original tests: " + oldTests.Count);
-                Collection<FileInfo> newTests = TestCaseUtils.Reduce(oldTests);
+                Collection<FileInfo> newTests = Reducer.Reduce(oldTests);
                 Console.WriteLine("Number of reduced tests: " + newTests.Count);
-                //Dictionary<TestCase.ExceptionDescription, Collection<FileInfo>> classifiedTests =
-                //    TestCaseUtils.ClassifyTestsByMessage(newTests);
-                //PrintStats(classifiedTests);
-                //StringBuilder b = new StringBuilder();
-                //foreach (string s in args) b.Append(" " + s);
-                //string htmlFileName = "reduced" + Path.GetRandomFileName() + ".html";
-                ////HtmlSummary.CreateIndexHtml(classifiedTests, htmlFileName, b.ToString());
-                //HtmlSummary.CreateIndexHtml2(classifiedTests, htmlFileName, b.ToString());
-                //OpenExplorer(htmlFileName);
-                System.Environment.Exit(0);
+                Environment.Exit(0);
             }
 
             if (args[0].Equals("reduce2")) //xiao.qu@us.abb.com adds for sequence-based reduction
@@ -138,7 +129,7 @@ namespace Randoop
                 Array.Copy(args, 1, args2, 0, args.Length - 1);
                 Collection<FileInfo> oldTests = TestCaseUtils.CollectFilesEndingWith(".cs", args2);
                 Console.WriteLine("Number of original tests: " + oldTests.Count);
-                Collection<FileInfo> newTests = TestCaseUtils.Reduce2(oldTests);
+                Collection<FileInfo> newTests = SequenceBasedReducer.Reduce(oldTests);
                 Console.WriteLine("Number of reduced tests: " + newTests.Count);
                 System.Environment.Exit(0);
             }
@@ -360,7 +351,7 @@ namespace Randoop
             
             Process p = new Process();
             
-            p.StartInfo.FileName = Common.Enviroment.RandoopBareExe;
+            p.StartInfo.FileName = Enviroment.RandoopBareExe;
             p.StartInfo.Arguments = ConfigFileName.ToString(configFileInfo);
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.ErrorDialog = true;

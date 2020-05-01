@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <StartArguments>reduce "C:\Projects\randoop-NET-src\TestRandoopBare\1ab1qkwm.jbd\randoop_output\normaltermination1"</StartArguments>
+    <StartArguments>"D:\Licenta\Randoop.NET\ClassLibrary1\ClassLibrary1\bin\Debug\ClassLibrary1.dll"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <StartArguments>reduce2	"C:\Projects\randoop-NET-src\TestRandoopBare\1ab1qkwm.jbd\randoop_output\normaltermination2"</StartArguments>
+    <StartArguments>reduce "D:\Licenta\Randoop.NET\ClassLibrary1\RandoopTestPrj\RandoopTest.cs"</StartArguments>
   </PropertyGroup>
   <PropertyGroup>
     <PublishUrlHistory />

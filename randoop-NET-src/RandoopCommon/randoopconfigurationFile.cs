@@ -12,13 +12,11 @@
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Collections.ObjectModel;
-using System.Text.RegularExpressions;
+using System.IO;
+using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
-using System.IO;
 
 namespace Randoop // TODO change name to Common.
 {

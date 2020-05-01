@@ -11,22 +11,18 @@
 
 
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Randoop;
-using System.IO;
 using Common;
-using System.Reflection;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using Common.RandoopBareExceptions;
-using Mono.Cecil;
+using Randoop;
+using System;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Reflection;
 
 
 namespace RandoopBare
 {
-   
+
     class MainMethod
     {
         /// <summary>
@@ -52,17 +48,17 @@ namespace RandoopBare
             catch (InvalidUserParamsException e)
             {
                 Console.Error.WriteLine(e.Message);
-                System.Environment.Exit(1);
+                Environment.Exit(1);
             }
             catch (InternalError e)
             {
                 Console.Error.WriteLine(Util.SummarizeException(e, Common.Enviroment.RandoopBareInternalErrorMessage));
-                System.Environment.Exit(1);
+                Environment.Exit(1);
             }
             catch (Exception e)
             {
                 Console.Error.WriteLine(Util.SummarizeException(e, ""));
-                System.Environment.Exit(1);
+                Environment.Exit(1);
             }
         }
 
@@ -78,29 +74,29 @@ namespace RandoopBare
             }
 
             // Parse XML file with generation parameters.
-            String configFileName = Common.ConfigFileName.Parse(args[0]);
+            String configFileName = ConfigFileName.Parse(args[0]);
             RandoopConfiguration config = LoadConfigFile(configFileName);
 
             // Set the random number generator.
             if (config.randomSource == RandomSource.SystemRandom)
             {
                 Console.WriteLine("Randoom seed = " + config.randomseed);
-                Common.SystemRandom random = new Common.SystemRandom();
+                SystemRandom random = new SystemRandom();
                 random.Init(config.randomseed);
-                Common.Enviroment.Random = random;
+                Enviroment.Random = random;
             }
             else
             {
                 Util.Assert(config.randomSource == RandomSource.Crypto);
                 Console.WriteLine("Randoom seed = new System.Security.Cryptography.RNGCryptoServiceProvider()");
-                Common.Enviroment.Random = new CryptoRandom();
+                Enviroment.Random = new CryptoRandom();
             }
 
             if (!Directory.Exists(config.outputdir))
-                throw new Common.RandoopBareExceptions.InvalidUserParamsException("output directory does not exist: "
+                throw new InvalidUserParamsException("output directory does not exist: "
                     + config.outputdir);
 
-            Collection<Assembly> assemblies = Common.Misc.LoadAssemblies(config.assemblies);
+            Collection<Assembly> assemblies = Misc.LoadAssemblies(config.assemblies);
 
             ////xiao.qu@us.abb.com for substituting MessageBox.Show() - start
             ////Instrument instrumentor = new Instrument();
