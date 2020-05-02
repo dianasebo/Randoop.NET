@@ -16,9 +16,10 @@ using System.IO;
 
 namespace Common
 {
-
     public abstract class ConfigFileReader<T>
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public abstract T Parse(string line, out string errorMessage);
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace Common
                 string error;
                 valueList.Add(Parse(line, out error));
                 if (error != null)
-                    Console.WriteLine("*** Failed to parse line {0} in file {1}.", line, path);
+                    Logger.Debug("*** Failed to parse line {0} in file {1}.", line, path);
             }
             reader.Close();
             return valueList;

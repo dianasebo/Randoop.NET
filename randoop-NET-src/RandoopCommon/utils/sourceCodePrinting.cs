@@ -247,15 +247,15 @@ namespace Common
             //    Console.Write("!!! ");
             //    foreach (Type t in type)
             //        Console.Write(" " + (t == null ? "null" : t.ToString()));
-            //    Console.WriteLine();
+            //    Logger.Debug();
             //}
 
             //private void PrintMap(Dictionary<int, Type> map)
             //{
-            //    Console.WriteLine("@@@MAP");
+            //    Logger.Debug("@@@MAP");
             //    foreach (int t in map.Keys)
             //    {
-            //        Console.WriteLine(t.ToString() + " @@@ " + map[t]);
+            //        Logger.Debug(t.ToString() + " @@@ " + map[t]);
             //    }
             //}
 

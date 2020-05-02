@@ -26,6 +26,7 @@ namespace Common
 
     public class TempDir
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         /// <summary>
         /// creates a temporary directory and returns its name.
         /// </summary>
@@ -35,7 +36,7 @@ namespace Common
         {
             // Create name of TEMP directory.
             string tempDir = Path.GetTempPath() + Path.GetRandomFileName();
-            Console.WriteLine("Creating temporary directory: " + tempDir);
+            Logger.Debug("Creating temporary directory: " + tempDir);
             new DirectoryInfo(tempDir).Create();
 
             return tempDir;
@@ -112,13 +113,15 @@ namespace Common
     /// </summary>
     public class Misc
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public static Collection<Assembly> LoadAssemblies(ICollection<FileName> binariesFileNames)
         {
             Collection<Assembly> assemblies = new Collection<Assembly>();
 
             foreach (FileName binaryName in binariesFileNames)
             {
-                Console.WriteLine("Loading assembly " + binaryName.fileName);
+                Logger.Debug("Loading assembly " + binaryName.fileName);
 
                 try
                 {

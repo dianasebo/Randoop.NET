@@ -20,6 +20,7 @@ namespace Common
 {
     public class Instrument
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         public static void ParseMapFile(string file, ref Dictionary<string, string> map)
         {   
             //openfile
@@ -30,7 +31,7 @@ namespace Common
             while ((line = filereader.ReadLine()) != null)
             {
                 count++;
-                Console.WriteLine(line); //debug
+                Logger.Debug(line); //debug
                 line = line.Trim();
                 if (line.StartsWith("#") || line.Equals(""))
                     continue;
@@ -185,7 +186,7 @@ namespace Common
             }
             else
             {
-                Console.WriteLine(".pdb file is unavailable.");
+                Logger.Debug(".pdb file is unavailable.");
             }
 
             var assemblyDefinition = AssemblyDefinition.ReadAssembly(inputAssembly, readerParameters);            
@@ -230,7 +231,7 @@ namespace Common
                         if ( (code == OpCodes.Callvirt || code == OpCodes.Call) //codepresent.Contains("call")
                              && (isSameMethod(methodname, src)) ) //or (operand as MethodReference == module.Import(src as MethodInfo))                         
                         {
-                            Console.WriteLine(codepresent + " " + methodname); //debug
+                            Logger.Debug(codepresent + " " + methodname); //debug
 
                             //---------------------- remove --------------------------//
                             /**** remove instruction in case of no replacing method is provided ****/
@@ -273,11 +274,11 @@ namespace Common
                             if (writeLineMethod == null)
                                 throw new InvalidFileFormatException("no MethodInfo is created -- possibly a wrong method delaration.");
 
-                            /*** Import the new (e.g. Console.WriteLine() method) ***/
+                            /*** Import the new (e.g. Logger.Debug() method) ***/
                             MethodReference writeLine;
                             writeLine = module.Import(writeLineMethod); //convert "MethodInfo/MethodDefinition" to "MethodReference"
 
-                            /*** Creates the CIL instruction for calling the new method (e.g. Console.WriteLine(string value) method) ***/
+                            /*** Creates the CIL instruction for calling the new method (e.g. Logger.Debug(string value) method) ***/
                             Mono.Cecil.Cil.Instruction callWriteLine;                            
                             callWriteLine = ilprocessor.Create(OpCodes.Call, writeLine);
 

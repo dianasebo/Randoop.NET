@@ -19,6 +19,8 @@ namespace RandoopTests
 {
     class SourceCodeGenerationTests
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private static readonly string DATA = "C:\\WINDOWS\\Microsoft.NET\\Framework\\v2.0.50727\\System.Data.dll";
         private static readonly string XML = "C:\\WINDOWS\\Microsoft.NET\\Framework\\v2.0.50727\\System.XML.dll";
         private static readonly string SECURITY = "C:\\WINDOWS\\Microsoft.NET\\Framework\\v2.0.50727\\System.Security.dll";
@@ -62,7 +64,7 @@ namespace RandoopTests
                 throw new TestFailedException(msg.ToString());
             }
 
-            Console.WriteLine("Deleting temporary directory " + workingDirectory);
+            Logger.Debug("Deleting temporary directory " + workingDirectory);
             new DirectoryInfo(workingDirectory).Delete(true);
         }
 

@@ -20,7 +20,6 @@ using System.Text;
 
 namespace Randoop
 {
-
     // SELECTED CREATED REDUNDANT BEHAVIOR
 
 
@@ -30,6 +29,8 @@ namespace Randoop
 
     public class StatsManager
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private StreamWriter writer;
 
         private StatKind state;
@@ -43,7 +44,7 @@ namespace Randoop
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:DoNotPassLiteralsAsLocalizedParameters", MessageId = "Common.RandoopBareExceptions.InternalError.#ctor(System.String)")]
         public void Selected(string t)
         {
-            //Console.WriteLine("@@@ selected " + t);
+            //Logger.Debug("@@@ selected " + t);
 
             if (t == null)
                 throw new Common.RandoopBareExceptions.InternalError("Bug in Randoop.StatsManager");
@@ -61,7 +62,7 @@ namespace Randoop
         public void CreatedNew(CreationResult cr)
         {
 
-            //Console.WriteLine("@@@ created new " + cr);
+            //Logger.Debug("@@@ created new " + cr);
 
             if (this.state != StatKind.Selected)
                 throw new Common.RandoopBareExceptions.InternalError("Bug in Randoop.StatsManager.");
@@ -96,7 +97,7 @@ namespace Randoop
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:DoNotPassLiteralsAsLocalizedParameters", MessageId = "Common.RandoopBareExceptions.InternalError.#ctor(System.String)")]
         public void ExecutionResult(string result)
         {
-            //Console.WriteLine("@@@ execution result " + result);
+            //Logger.Debug("@@@ execution result " + result);
 
             if (result == null)
                 throw new ArgumentNullException("result");
@@ -146,7 +147,7 @@ namespace Randoop
                 writer.WriteLine(s.ToString());
             }
             writer.Close();
-            Console.WriteLine("Wrote results to file {0}.", resultsFileName);
+            Logger.Debug("Wrote results to file {0}.", resultsFileName);
 
         }
 
@@ -177,7 +178,7 @@ namespace Randoop
 
         private static void ReadStats(FileInfo fi, Dictionary<string, OneActionStats> stats)
         {
-            Console.WriteLine("Parsing file " + fi.FullName);
+            Logger.Debug("Parsing file " + fi.FullName);
 
             StreamReader reader = new StreamReader(fi.FullName);
 
@@ -187,7 +188,7 @@ namespace Randoop
             }
             catch (Exception e)
             {
-                Console.WriteLine("Warning: unable to open a StreamReader for file "
+                Logger.Debug("Warning: unable to open a StreamReader for file "
                     + fi.FullName
                     + ". (Will continue.) Exception message: "
                     + e.Message);
@@ -207,7 +208,7 @@ namespace Randoop
             string[] elements = line.Trim().Split('#');
             if (elements.Length < 2)
             {
-                Console.WriteLine("Warning: line not a valid stats line: {0}. (Will continue.)", line);
+                Logger.Debug("Warning: line not a valid stats line: {0}. (Will continue.)", line);
                 return;
             }
             string action = elements[0].Trim();
@@ -245,7 +246,7 @@ namespace Randoop
 
             if (elements.Length < 3)
             {
-                Console.WriteLine("Warning: line not a valid stats line: {0}. (Will continue.)", line);
+                Logger.Debug("Warning: line not a valid stats line: {0}. (Will continue.)", line);
                 return;
             }
 

@@ -4,7 +4,7 @@
     <StartArguments>"D:\Licenta\Randoop.NET\ClassLibrary1\ClassLibrary1\bin\Debug\ClassLibrary1.dll"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <StartArguments>reduce "D:\Licenta\Randoop.NET\ClassLibrary1\RandoopTestPrj\RandoopTest.cs"</StartArguments>
+    <StartArguments>"D:\Licenta\ClassLibraryForTest\bin\Debug\netstandard2.0\ClassLibraryForTest.dll"</StartArguments>
   </PropertyGroup>
   <PropertyGroup>
     <PublishUrlHistory />

@@ -20,6 +20,7 @@ namespace Common
 {
     public class ReflectionUtils
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private class TypePair
         {
@@ -89,7 +90,7 @@ namespace Common
                 }
                 catch(System.Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Logger.Debug(ex.Message);
                 }
             }
             return retval;

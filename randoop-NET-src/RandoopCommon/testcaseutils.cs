@@ -24,6 +24,8 @@ namespace Common
     /// </summary>
     public static class TestCaseUtils
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public static Collection<FileInfo> CollectFilesEndingWith(string endString, params string[] fileNames)
         {
             List<FileInfo> retval = new List<FileInfo>();
@@ -69,7 +71,7 @@ namespace Common
             {
                 if (!Reproduce(oneTest))
                 {
-                    Console.WriteLine("Test " + oneTest + " NOT reproducible.");
+                    Logger.Debug("Test " + oneTest + " NOT reproducible.");
                 }
             }
         }
@@ -89,7 +91,7 @@ namespace Common
             {
                 int linesRemoved = Minimize(oneTest);
                 if (linesRemoved > 0)
-                    Console.WriteLine("Test " + oneTest + ": removed " + linesRemoved + " lines.");
+                    Logger.Debug("Test " + oneTest + ": removed " + linesRemoved + " lines.");
             }
         }
 
@@ -101,7 +103,7 @@ namespace Common
 
             int linesRemoved = 0;
 
-            //            Console.WriteLine(testFile);
+            //            Logger.Debug(testFile);
 
             for (int linePos = testFile.NumTestLines - 1; linePos >= 0; linePos--)
             {
@@ -141,9 +143,9 @@ namespace Common
                 {
                     if (!runResults.compilationSuccessful)
                     {
-                        //Console.WriteLine("@@@COMPILATIONFAILED:");
+                        //Logger.Debug("@@@COMPILATIONFAILED:");
                         //foreach (CompilerError err in runResults.compilerErrors)
-                        //    Console.WriteLine("@@@" + err);
+                        //    Logger.Debug("@@@" + err);
                     }
                     test.Delete();
                 }
@@ -166,8 +168,8 @@ namespace Common
                 }
                 catch (TestCase.TestCaseParseException e)
                 {
-                    Console.WriteLine("Problem parsing test {0}. (Ignoring test.)", t.FullName);
-                    Console.WriteLine(Util.SummarizeException(e, ""));
+                    Logger.Debug("Problem parsing test {0}. (Ignoring test.)", t.FullName);
+                    Logger.Debug(Util.SummarizeException(e, ""));
                     continue;
                 }
 

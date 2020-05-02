@@ -109,6 +109,7 @@ namespace Randoop
 
     public class ClassifyingTestFileWriter : ITestFileWriter
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private DirectoryInfo outputDir;
 
@@ -123,7 +124,7 @@ namespace Randoop
             this.outputDir = di;
             this.numNormalTerminationPlansWritten = 0;
             DirectoryInfo tempDir = new DirectoryInfo(outputDir + "\\temp");
-            Console.WriteLine("Creating directory: " + tempDir.FullName);
+            Logger.Debug("Creating directory: " + tempDir.FullName);
             tempDir.Create();
 
             if (testPrefix == null)

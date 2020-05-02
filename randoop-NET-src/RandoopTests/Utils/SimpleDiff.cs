@@ -16,7 +16,7 @@ namespace RandoopTests.Utils
 {
     public class SimpleDiff
     {
-
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         public static bool Diff(string file1, string file2)
         {
             if (file1 == null) throw new ArgumentNullException();
@@ -32,23 +32,23 @@ namespace RandoopTests.Utils
             {
                 if (lines1.Count - 1 < i)
                 {
-                    Console.WriteLine("*** File {0} has fewer lines than file {1}.", file1, file2);
-                    Console.WriteLine("*** First line not contained in smaller file:", lines1[i]);
+                    Logger.Debug("*** File {0} has fewer lines than file {1}.", file1, file2);
+                    Logger.Debug("*** First line not contained in smaller file:", lines1[i]);
                     return false;
                 }
 
                 if (lines2.Count - 1 < i)
                 {
-                    Console.WriteLine("*** File {0} has fewer lines than file {1}.", file2, file1);
-                    Console.WriteLine("*** First line not contained in smaller file:", lines2[i]);
+                    Logger.Debug("*** File {0} has fewer lines than file {1}.", file2, file1);
+                    Logger.Debug("*** First line not contained in smaller file:", lines2[i]);
                     return false;
                 }
 
                 if (!lines1[i].Equals(lines2[i]))
                 {
-                    Console.WriteLine("*** Files {0} and {1} differ starting at line {2}.", file1, file2, i);
-                    Console.WriteLine("*** File {0} line {1}: {2}.", file1, i, lines1[i]);
-                    Console.WriteLine("*** File {0} line {1}: {2}.", file2, i, lines2[i]);
+                    Logger.Debug("*** Files {0} and {1} differ starting at line {2}.", file1, file2, i);
+                    Logger.Debug("*** File {0} line {1}: {2}.", file1, i, lines1[i]);
+                    Logger.Debug("*** File {0} line {1}: {2}.", file2, i, lines2[i]);
                     return false;
                 }
             }

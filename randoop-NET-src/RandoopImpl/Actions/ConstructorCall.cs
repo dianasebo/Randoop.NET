@@ -195,7 +195,7 @@ namespace Randoop
 
                 if (exceptionThrown is AccessViolationException)
                 {
-                    //Console.WriteLine("SECOND CHANCE AV!" + this.ToString());
+                    //Logger.Debug("SECOND CHANCE AV!" + this.ToString());
                     //Logging.LogLine(Logging.GENERAL, "SECOND CHANCE AV!" + this.ToString());                    
                 }
 

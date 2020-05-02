@@ -18,6 +18,7 @@ namespace RandoopTests
 {
     public class Util
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public static Process RunExecutable(string executable, string args, string workingDirectory)
         {
@@ -30,8 +31,8 @@ namespace RandoopTests
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.ErrorDialog = true;
             p.StartInfo.WorkingDirectory = workingDirectory;
-            Console.WriteLine("Starting process:");
-            Console.WriteLine(Common.Util.PrintProcess(p));
+            Logger.Debug("Starting process:");
+            Logger.Debug(Common.Util.PrintProcess(p));
             p.Start();
             p.WaitForExit();
             return p;
@@ -49,8 +50,8 @@ namespace RandoopTests
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.ErrorDialog = true;
             p.StartInfo.WorkingDirectory = workingDirectory;
-            Console.WriteLine("Starting process:");
-            Console.WriteLine(Common.Util.PrintProcess(p));
+            Logger.Debug("Starting process:");
+            Logger.Debug(Common.Util.PrintProcess(p));
             p.Start();
             p.WaitForExit();
             return p;
@@ -75,8 +76,8 @@ namespace RandoopTests
             p.StartInfo.ErrorDialog = true;
             p.StartInfo.WorkingDirectory = dir.FullName;
 
-            Console.WriteLine("Starting process:");
-            Console.WriteLine(Common.Util.PrintProcess(p));
+            Logger.Debug("Starting process:");
+            Logger.Debug(Common.Util.PrintProcess(p));
             p.Start();
             p.WaitForExit();
             return p;

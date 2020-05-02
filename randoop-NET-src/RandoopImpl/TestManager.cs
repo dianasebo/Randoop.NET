@@ -18,6 +18,8 @@ namespace Randoop
 
     public class PlanManager
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         RandoopConfiguration config;
 
         // Counter used to print out a dot for every 1000 plans.
@@ -81,7 +83,7 @@ namespace Randoop
         {
 
             //foreach (string s in p.Codestring)
-            //    Console.WriteLine(s);
+            //    Logger.Debug(s);
 
 
             if (builderPlans.Containsplan(p))
@@ -160,7 +162,7 @@ namespace Randoop
 
                             if (exceptionThrown is AccessViolationException)
                             {
-                                Console.WriteLine("SECOND-CHANCE ACCESS VIOLATION EXCEPTION.");
+                                Logger.Debug("SECOND-CHANCE ACCESS VIOLATION EXCEPTION.");
                                 System.Environment.Exit(1);
                             }
                         }

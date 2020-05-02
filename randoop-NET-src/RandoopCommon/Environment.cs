@@ -23,6 +23,8 @@ namespace Common
     /// </summary>
     public class Enviroment
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private static IRandom random;
 
         public static IRandom Random
@@ -290,7 +292,7 @@ namespace Common
             randoopExe = randoopHome + @"\Randoop\bin\" + dir + @"\Randoop.exe";
             if (!File.Exists(randoopExe))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", randoopExe);
+                Logger.Debug("*** Error: randoop could not find file {0}.", randoopExe);
                 System.Environment.Exit(1);
             }
 
@@ -298,7 +300,7 @@ namespace Common
             randoopBareExe = randoopHome + @"\RandoopBare\bin\" + dir + @"\RandoopBare.exe";
             if (!File.Exists(randoopBareExe))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", randoopBareExe);
+                Logger.Debug("*** Error: randoop could not find file {0}.", randoopBareExe);
                 System.Environment.Exit(1);
             }
         }
@@ -309,7 +311,7 @@ namespace Common
             randoopExe = randoopHome + @"\bin\randoop.exe";
             if (!File.Exists(randoopExe))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", randoopExe);
+                Logger.Debug("*** Error: randoop could not find file {0}.", randoopExe);
                 System.Environment.Exit(1);
             }
 
@@ -317,7 +319,7 @@ namespace Common
             randoopBareExe = randoopHome + @"\bin\randoopbare.exe";
             if (!File.Exists(randoopBareExe))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", randoopBareExe);
+                Logger.Debug("*** Error: randoop could not find file {0}.", randoopBareExe);
                 System.Environment.Exit(1);
             }
         }
@@ -328,23 +330,23 @@ namespace Common
 
             if (!Directory.Exists(randoopDefaultConfigFilesDir))
             {
-                Console.WriteLine("*** Warning: randoop could not find directory {0}.", randoopDefaultConfigFilesDir);
+                Logger.Debug("*** Warning: randoop could not find directory {0}.", randoopDefaultConfigFilesDir);
             }
 
 
             sbytesDefaultConfigFile = randoopDefaultConfigFilesDir + @"\seed_sbyte.txt";
             if (!File.Exists(sbytesDefaultConfigFile))
             {
-                Console.WriteLine("*** Warning: randoop could not find file {0}.", sbytesDefaultConfigFile);
+                Logger.Debug("*** Warning: randoop could not find file {0}.", sbytesDefaultConfigFile);
                 sbytesDefaultConfigFile = randoopDefaultConfigFilesDir + @"\seed_sbyte.txt";
-                Console.WriteLine("             Will use file {0}.", sbytesDefaultConfigFile);
+                Logger.Debug("             Will use file {0}.", sbytesDefaultConfigFile);
             }
 
 
             bytesDefaultConfigFile = randoopDefaultConfigFilesDir + @"\seed_byte.txt";
             if (!File.Exists(bytesDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", bytesDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", bytesDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -352,7 +354,7 @@ namespace Common
             shortsDefaultConfigFile = randoopDefaultConfigFilesDir + @"\seed_short.txt";
             if (!File.Exists(shortsDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", shortsDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", shortsDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -360,7 +362,7 @@ namespace Common
             ushortsDefaultConfigFile = randoopDefaultConfigFilesDir + @"\seed_ushort.txt";
             if (!File.Exists(ushortsDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", ushortsDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", ushortsDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -368,7 +370,7 @@ namespace Common
             intsDefaultConfigFile = randoopDefaultConfigFilesDir + @"\seed_int.txt";
             if (!File.Exists(intsDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", intsDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", intsDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -376,7 +378,7 @@ namespace Common
             uintsDefaultConfigFile = randoopDefaultConfigFilesDir + @"\seed_uint.txt";
             if (!File.Exists(uintsDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", uintsDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", uintsDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -384,7 +386,7 @@ namespace Common
             longsDefaultConfigFile = randoopDefaultConfigFilesDir + @"\seed_long.txt";
             if (!File.Exists(longsDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", longsDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", longsDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -392,7 +394,7 @@ namespace Common
             ulongsDefaultConfigFile = randoopDefaultConfigFilesDir + @"\seed_ulong.txt";
             if (!File.Exists(ulongsDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", ulongsDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", ulongsDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -400,7 +402,7 @@ namespace Common
             charsDefaultConfigFile = randoopDefaultConfigFilesDir + @"\seed_char.txt";
             if (!File.Exists(charsDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", charsDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", charsDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -408,7 +410,7 @@ namespace Common
             floatsDefaultConfigFile = randoopDefaultConfigFilesDir + @"\seed_float.txt";
             if (!File.Exists(floatsDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", floatsDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", floatsDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -416,7 +418,7 @@ namespace Common
             doublesDefaultConfigFile = randoopDefaultConfigFilesDir + @"\seed_double.txt";
             if (!File.Exists(doublesDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", doublesDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", doublesDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -424,7 +426,7 @@ namespace Common
             boolsDefaultConfigFile = randoopDefaultConfigFilesDir + @"\seed_bool.txt";
             if (!File.Exists(boolsDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", boolsDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", boolsDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -432,7 +434,7 @@ namespace Common
             decimalsDefaultConfigFile = randoopDefaultConfigFilesDir + @"\seed_decimal.txt";
             if (!File.Exists(decimalsDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", decimalsDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", decimalsDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -440,7 +442,7 @@ namespace Common
             stringsDefaultConfigFile = randoopDefaultConfigFilesDir + @"\seed_string.txt";
             if (!File.Exists(stringsDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", stringsDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", stringsDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -448,7 +450,7 @@ namespace Common
             requiretypesDefaultConfigFile = randoopDefaultConfigFilesDir + @"\require_types.txt";
             if (!File.Exists(requiretypesDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", requiretypesDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", requiretypesDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -456,7 +458,7 @@ namespace Common
             requiremembersDefaultConfigFile = randoopDefaultConfigFilesDir + @"\require_members.txt";
             if (!File.Exists(requiremembersDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", requiremembersDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", requiremembersDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -464,7 +466,7 @@ namespace Common
             requirefieldsDefaultConfigFile = randoopDefaultConfigFilesDir + @"\require_fields.txt";
             if (!File.Exists(requirefieldsDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", requirefieldsDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", requirefieldsDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -472,7 +474,7 @@ namespace Common
             forbidtypesDefaultConfigFile = randoopDefaultConfigFilesDir + @"\forbid_types.txt";
             if (!File.Exists(forbidtypesDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", forbidtypesDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", forbidtypesDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -480,7 +482,7 @@ namespace Common
             forbidmembersDefaultConfigFile = randoopDefaultConfigFilesDir + @"\forbid_members.txt";
             if (!File.Exists(forbidmembersDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", forbidmembersDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", forbidmembersDefaultConfigFile);
                 System.Environment.Exit(1);
             }
 
@@ -488,7 +490,7 @@ namespace Common
             forbidfieldsDefaultConfigFile = randoopDefaultConfigFilesDir + @"\forbid_fields.txt";
             if (!File.Exists(forbidfieldsDefaultConfigFile))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", forbidfieldsDefaultConfigFile);
+                Logger.Debug("*** Error: randoop could not find file {0}.", forbidfieldsDefaultConfigFile);
                 System.Environment.Exit(1);
             }
         }
@@ -498,7 +500,7 @@ namespace Common
             //dHandler = randoopHome + @"\auxtools\dhandler\I386\DHandler.exe";
             //if (!File.Exists(dHandler))
             //{
-            //    Console.WriteLine("*** Error: randoop could not find file {0}.", dHandler);
+            //    Logger.Debug("*** Error: randoop could not find file {0}.", dHandler);
             //    System.Environment.Exit(1);
             //}
 
@@ -506,7 +508,7 @@ namespace Common
             //windiff = randoopHome + @"\auxtools\windiff.exe";
             //if (!File.Exists(windiff))
             //{
-            //    Console.WriteLine("*** Error: randoop could not find file {0}.", windiff);
+            //    Logger.Debug("*** Error: randoop could not find file {0}.", windiff);
             //    System.Environment.Exit(1);
             //}
 
@@ -514,7 +516,7 @@ namespace Common
             //miniDHandler = randoopHome + @"\auxtools\dhandler\I386\Mini-DHandler.exe";
             //if (!File.Exists(miniDHandler))
             //{
-            //    Console.WriteLine("*** Error: randoop could not find file {0}.", miniDHandler);
+            //    Logger.Debug("*** Error: randoop could not find file {0}.", miniDHandler);
             //    System.Environment.Exit(1);
             //}
 
@@ -522,7 +524,7 @@ namespace Common
             pageHeap = randoopHome + @"\auxtools\pageheap.exe";
             if (!File.Exists(pageHeap))
             {
-                Console.WriteLine("*** Error: randoop could not find file {0}.", pageHeap);
+                Logger.Debug("*** Error: randoop could not find file {0}.", pageHeap);
                 System.Environment.Exit(1);
             }
 
@@ -530,7 +532,7 @@ namespace Common
             //defaultDhi = randoopHome + @"\auxtools\dhandler\I386\default.dhi";
             //if (!File.Exists(defaultDhi))
             //{
-            //    Console.WriteLine("*** Error: randoop could not find file {0}.", defaultDhi);
+            //    Logger.Debug("*** Error: randoop could not find file {0}.", defaultDhi);
             //    System.Environment.Exit(1);
             //}
         }
@@ -567,8 +569,8 @@ namespace Common
         /// <param name="failureMessage"></param>
         public static void Fail(String failureMessage)
         {
-            Console.WriteLine("Randoop encountered a problem.");
-            Console.WriteLine(failureMessage);
+            Logger.Debug("Randoop encountered a problem.");
+            Logger.Debug(failureMessage);
             System.Environment.Exit(1);
         }
     }

@@ -29,6 +29,7 @@ namespace Randoop
     /// </summary>
     public class RandomExplorer //: ExplorationContext
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Parsed user-supplied arguments.
@@ -96,11 +97,10 @@ namespace Randoop
             // Start timing test generation.
             Timer.QueryPerformanceCounter(ref TimeTracking.generationStartTime);
 
-
             //exercise the fair option 
             if (fairOpt)
             {
-                Console.WriteLine("Using the fair option ....");
+                Logger.Debug("Using the fair option ....");
 
                 //fairOptLog = new StreamWriter("Randoop.fairopt.log");
 
@@ -136,11 +136,11 @@ namespace Randoop
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine("Exception raised from RandomActiveMethodorConstructor is {0}", e.ToString());
+                            Logger.Debug("Exception raised from RandomActiveMethodorConstructor is {0}", e.ToString());
                             continue;
                         }
 
-                        //Console.WriteLine("Picked up method {0}::{1}", m.DeclaringType,m.Name );
+                        //Logger.Debug("Picked up method {0}::{1}", m.DeclaringType,m.Name );
                         int prevBuilderPlanCnt = planManager.builderPlans.NumPlans;
 
                         //Randoop step
@@ -171,7 +171,7 @@ namespace Randoop
                             }
                             catch (Exception e) // had a nasty bug in the updateActiveMethodsAndClasses, so using try-catch
                             {
-                                Console.WriteLine("Exception raised from UpdateActiveMethodsAndClasses is {0}", e.ToString());
+                                Logger.Debug("Exception raised from UpdateActiveMethodsAndClasses is {0}", e.ToString());
                             }
                         }
 
@@ -186,8 +186,8 @@ namespace Randoop
                             }
 
                             //stats printing 
-                            Console.WriteLine("Finishing the fair exploration...printing activity stats");
-                            Console.WriteLine("Stats: <#ActiveTypes, #ActiveMembers, #BuilderPlans, #typesWithObjs> = <{0},{1},{2},{3}>",
+                            Logger.Debug("Finishing the fair exploration...printing activity stats");
+                            Logger.Debug("Stats: <#ActiveTypes, #ActiveMembers, #BuilderPlans, #typesWithObjs> = <{0},{1},{2},{3}>",
                                 activeTypes.Count, size, planManager.builderPlans.NumPlans, typesWithObjects.Count);
                             //fairOptLog.Close();
 
@@ -235,8 +235,8 @@ namespace Randoop
                         }
 
                         //stats printing 
-                        Console.WriteLine("Finishing the non-fair exploration...printing activity stats");
-                        Console.WriteLine("Stats: <#ActiveTypes, #ActiveMembers, #BuilderPlans, #typesWithObjs> = <{0},{1},{2},{3}>",
+                        Logger.Debug("Finishing the non-fair exploration...printing activity stats");
+                        Logger.Debug("Stats: <#ActiveTypes, #ActiveMembers, #BuilderPlans, #typesWithObjs> = <{0},{1},{2},{3}>",
                             activeTypes.Count, size, planManager.builderPlans.NumPlans, typesWithObjects.Count);
                         //fairOptLog.Close();
 
@@ -564,7 +564,7 @@ namespace Randoop
         private static void RandoopPrintFairStats(string method, string s)
         {
 #if PRINT_FAIR_RANDOOP_LOG
-            Console.WriteLine("Method: {0} :: {1}", method, s);
+            Logger.Debug("Method: {0} :: {1}", method, s);
 #endif
             //fairOptLog.WriteLine("Method: {0} :: {1}", method, s);
             //fairOptLog.Flush();
@@ -664,7 +664,7 @@ namespace Randoop
                 stats.CreatedNew(CreationResult.NoInputs);
                 return;
             }
-            //Console.WriteLine("\t\t A plan has been created");
+            //Logger.Debug("\t\t A plan has been created");
 
             Plan plan = new Plan(MethodCall.Get(method),
                 r.fplans, r.fparameterChoosers);
@@ -896,7 +896,7 @@ namespace Randoop
                         }
 
                         //if ((method != null) && method.Name.Contains("heapSort") && !(chosenplan.transformer is PrimitiveValueTransformer)) //xiao.qu@us.abb.com
-                        //    Console.WriteLine("debug.");
+                        //    Logger.Debug("debug.");
 
                         if (!filter(chosenplan, i))
                         {

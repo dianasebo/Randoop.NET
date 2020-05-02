@@ -172,7 +172,7 @@ namespace Randoop
             Console.Write("{0} classes.", allTypes.Count);
             foreach (Type t in allTypes)
             {
-                //Console.WriteLine("Processing type {0}", t.ToString());
+                //Logger.Debug("Processing type {0}", t.ToString());
 
                 List<FieldInfo> fieldInfoDictList;
                 fields.TryGetValue(t, out fieldInfoDictList);
@@ -193,10 +193,10 @@ namespace Randoop
                     string message;
                     if (!filter.OkToUse(t, out message))
                     {
-                        //Console.WriteLine(message);
+                        //Logger.Debug(message);
                         continue;
                     }
-                    //Console.WriteLine(message);
+                    //Logger.Debug(message);
                 }
 
                 foreach (FieldInfo fi in t.GetFields())
@@ -204,17 +204,17 @@ namespace Randoop
                     string message;
                     if (!filter.OkToUse(fi.DeclaringType, out message))
                     {
-                        //Console.WriteLine("\t" + message);
+                        //Logger.Debug("\t" + message);
                         continue;
                     }
 
                     if (!filter.OkToUse(fi, out message))
                     {
-                        //Console.WriteLine("\t" + message);
+                        //Logger.Debug("\t" + message);
                         continue;
                     }
 
-                    //Console.WriteLine(message);
+                    //Logger.Debug(message);
 
                     FieldInfo info = fi;
 
@@ -229,17 +229,17 @@ namespace Randoop
                     string message;
                     if (!filter.OkToUse(ci.DeclaringType, out message))
                     {
-                        //Console.WriteLine("\t" + message);
+                        //Logger.Debug("\t" + message);
                         continue;
                     }
 
                     if (!filter.OkToUse(ci, out message))
                     {
-                        //Console.WriteLine("\t" + message);
+                        //Logger.Debug("\t" + message);
                         continue;
                     }
 
-                    //Console.WriteLine(message);
+                    //Logger.Debug(message);
 
                     ConstructorInfo info = ci;
 
@@ -256,17 +256,17 @@ namespace Randoop
                     string message;
                     if (!filter.OkToUse(mi.DeclaringType, out message))
                     {
-                        //Console.WriteLine("\t" + message);
+                        //Logger.Debug("\t" + message);
                         continue;
                     }
 
                     if (!filter.OkToUse(mi, out message))
                     {
-                        //Console.WriteLine("\t" + message);
+                        //Logger.Debug("\t" + message);
                         continue;
                     }
 
-                    //Console.WriteLine(message);
+                    //Logger.Debug(message);
 
                     methodDictList.Add(info);
 

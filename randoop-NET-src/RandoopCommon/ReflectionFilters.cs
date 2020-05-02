@@ -270,7 +270,7 @@ namespace Randoop
             //Console.Write("FFF" + fi.ToString() + " ");
             if (!fi.IsPublic)
             {
-                //Console.WriteLine("FALSE");
+                //Logger.Debug("FALSE");
                 message = "Will not use: field is not public: " + fi.ToString();
                 return false;
             }
@@ -293,12 +293,12 @@ namespace Randoop
             // our notion of plans does not account for global state.
             if (fi.IsStatic)
             {
-                //Console.WriteLine("FALSE");
+                //Logger.Debug("FALSE");
                 message = "Will not use: field is static: " + fi.ToString();
                 return false;
             }
 
-            //Console.WriteLine("TRUE");
+            //Logger.Debug("TRUE");
             message = "@@@OK6" + fi.ToString();
             return true;
         }

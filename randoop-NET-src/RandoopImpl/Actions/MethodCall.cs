@@ -23,6 +23,8 @@ namespace Randoop
 {
     public class MethodCall : Transformer
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public readonly MethodInfo method;
         private readonly Type[] resultTypes;
         private readonly bool[] defaultActiveResultTypes;
@@ -468,13 +470,13 @@ namespace Randoop
             //if (this.timesReturnValRetrived >= this.ReturnValue.Count) //timesExecuted == ReturnValue.Count
             if (this.timesReturnValRetrived >= this.timesExecuted)
             {
-                Console.WriteLine(this.method.Name + "[" + this.timesReturnValRetrived.ToString()
+                Logger.Debug(this.method.Name + "[" + this.timesReturnValRetrived.ToString()
                     + "+] didn't execute yet. Output-plan-only stage.");
 
                 return b.ToString(); //skip adding regression assertion
             }
 
-            Console.WriteLine(this.method.Name + "[" + this.timesReturnValRetrived.ToString()
+            Logger.Debug(this.method.Name + "[" + this.timesReturnValRetrived.ToString()
                     + "] get-return-value stage.");
 
             object tempval = this.ReturnValue[this.timesReturnValRetrived];  // timesReturnValRetrived == ReturnValue.Count - 1
@@ -530,14 +532,14 @@ namespace Randoop
 
             executionLog.WriteLine("execute method " + this.method.Name 
                 + "[" + (this.timesExecuted-1).ToString() + "]"); //xiao.qu@us.abb.com changes
-            Console.WriteLine("execute method " + this.method.Name //xiao.qu@us.abb.com adds
+            Logger.Debug("execute method " + this.method.Name //xiao.qu@us.abb.com adds
                 + "[" + (this.timesExecuted - 1).ToString() + "]");
 
             executionLog.Flush();
 
             //if (this.timesExecuted != this.ReturnValue.Count + 1) //xiao.qu@us.abb.com adds for debug
             //{
-            //    Console.WriteLine("timeExecute = " + this.timesExecuted.ToString() +
+            //    Logger.Debug("timeExecute = " + this.timesExecuted.ToString() +
             //        " but ReturnValue is " + this.ReturnValue.Count.ToString());
             //}
 
@@ -707,7 +709,7 @@ namespace Randoop
 
             executionLog.WriteLine("execute method " + this.method.Name
                 + "[" + (this.timesExecuted - 1).ToString() + "] the second time"); 
-            Console.WriteLine("execute method " + this.method.Name 
+            Logger.Debug("execute method " + this.method.Name 
                 + "[" + (this.timesExecuted - 1).ToString() + "] the second time");
 
             executionLog.Flush();

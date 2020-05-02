@@ -229,6 +229,8 @@ namespace Randoop // TODO change name to Common.
     /// <typeparam name="T">data type to use</typeparam>
     public abstract class CommonSerializer<T>
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// Load the object values from the file
         /// </summary>
@@ -286,7 +288,7 @@ namespace Randoop // TODO change name to Common.
         public void Save(string fileName)
         {
             if (fileName == null) throw new ArgumentNullException("fileName");
-            Console.WriteLine("Creating xml configuration file " + fileName);
+            Logger.Debug("Creating xml configuration file " + fileName);
             Save(this, fileName);
         }
 

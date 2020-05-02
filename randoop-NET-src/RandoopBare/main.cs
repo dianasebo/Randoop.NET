@@ -25,6 +25,8 @@ namespace RandoopBare
 
     class MainMethod
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// RandoopBare.MainMethod is the entrypoint into the Randoop
         /// test generator/executor, but it is not called directly by the user.
@@ -80,7 +82,7 @@ namespace RandoopBare
             // Set the random number generator.
             if (config.randomSource == RandomSource.SystemRandom)
             {
-                Console.WriteLine("Randoom seed = " + config.randomseed);
+                Logger.Debug("Randoom seed = " + config.randomseed);
                 SystemRandom random = new SystemRandom();
                 random.Init(config.randomseed);
                 Enviroment.Random = random;
@@ -88,7 +90,7 @@ namespace RandoopBare
             else
             {
                 Util.Assert(config.randomSource == RandomSource.Crypto);
-                Console.WriteLine("Randoom seed = new System.Security.Cryptography.RNGCryptoServiceProvider()");
+                Logger.Debug("Randoom seed = new System.Security.Cryptography.RNGCryptoServiceProvider()");
                 Enviroment.Random = new CryptoRandom();
             }
 
@@ -102,14 +104,14 @@ namespace RandoopBare
             ////Instrument instrumentor = new Instrument();
             //foreach (FileName asm in config.assemblies)
             //{
-            //    Instrument.MethodInstrument(asm.fileName, "System.Windows.Forms.MessageBox::Show", "System.Console.Writeline");
+            //    Instrument.MethodInstrument(asm.fileName, "System.Windows.Forms.MessageBox::Show", "System.Logger.Debug");
             //}            
             ////xiao.qu@us.abb.com for substituting MessageBox.Show() - end
 
             IReflectionFilter filter1 = new VisibilityFilter(config);
             ConfigFilesFilter filter2 = new ConfigFilesFilter(config);
 
-            Console.WriteLine("========== REFLECTION PATTERNS:");
+            Logger.Debug("========== REFLECTION PATTERNS:");
             filter2.PrintFilter(Console.Out);
 
             IReflectionFilter filter = new ComposableFilter(filter1, filter2);
@@ -120,12 +122,12 @@ namespace RandoopBare
             planManager.builderPlans.AddEnumConstantsToPlanDB(typesToExplore);
             planManager.builderPlans.AddConstantsToTDB(config);
 
-            Console.WriteLine("========== INITIAL PRIMITIVE VALUES:");
+            Logger.Debug("========== INITIAL PRIMITIVE VALUES:");
             planManager.builderPlans.PrintPrimitives(Console.Out);
 
             StatsManager stats = new StatsManager(config);
 
-            Console.WriteLine("Analyzing assembly.");
+            Logger.Debug("Analyzing assembly.");
 
             ActionSet actions = null;
             try
@@ -138,8 +140,7 @@ namespace RandoopBare
                 throw new Common.RandoopBareExceptions.InvalidUserParamsException(msg);
             }
 
-            Console.WriteLine();
-            Console.WriteLine("Generating tests.");
+            Logger.Debug("Generating tests.");
 
             RandomExplorer explorer =
                 new RandomExplorer(typesToExplore, filter, true, config.randomseed, config.arraymaxsize, stats, actions);
@@ -150,7 +151,7 @@ namespace RandoopBare
             }
             catch (Exception e)
             {
-                Console.WriteLine("Explorer raised exception {0}", e.ToString());
+                Logger.Debug("Explorer raised exception {0}", e.ToString());
             }
 
             //Mono.Cecil.Cil.
