@@ -90,7 +90,7 @@ namespace Common
                 }
                 catch(System.Exception ex)
                 {
-                    Logger.Debug(ex.Message);
+                    Logger.Error(ex.Message);
                 }
             }
             return retval;

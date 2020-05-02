@@ -53,7 +53,7 @@ namespace Randoop
         /// </summary>
         static void Main(string[] args)
         {
-            Logger.Info("Randoop.NET: an API fuzzer for .Net. Version {0} (compiled {1}).",
+            Logger.Debug("Randoop.NET: an API fuzzer for .Net. Version {0} (compiled {1}).",
                 Enviroment.RandoopVersion, Enviroment.RandoopCompileDate);
 
             if (args.Length == 0 || IsHelpCommand(args[0]))
@@ -97,7 +97,7 @@ namespace Randoop
                 }
                 catch(Exception ex)
                 {
-                    Logger.Debug(ex.Message);
+                    Logger.Error(ex.Message);
                     Environment.Exit(-1);
                 }
 
@@ -399,7 +399,7 @@ namespace Randoop
                 if (err.Contains(Enviroment.RandoopBareInvalidUserParametersErrorMessage))
                 {
                     Logger.Error(err);
-                    Logger.Error("*** RandoopBare terminated normally. Exiting.");
+                    Logger.Debug("*** RandoopBare terminated normally. Exiting.");
                     return p.ExitCode;
                 }
 

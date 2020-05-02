@@ -53,7 +53,7 @@ namespace Common
                 string error;
                 valueList.Add(Parse(line, out error));
                 if (error != null)
-                    Logger.Debug("*** Failed to parse line {0} in file {1}.", line, path);
+                    Logger.Error("*** Failed to parse line {0} in file {1}.", line, path);
             }
             reader.Close();
             return valueList;

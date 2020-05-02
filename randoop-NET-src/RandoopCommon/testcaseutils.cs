@@ -168,8 +168,8 @@ namespace Common
                 }
                 catch (TestCase.TestCaseParseException e)
                 {
-                    Logger.Debug("Problem parsing test {0}. (Ignoring test.)", t.FullName);
-                    Logger.Debug(Util.SummarizeException(e, ""));
+                    Logger.Error("Problem parsing test {0}. (Ignoring test.)", t.FullName);
+                    Logger.Error(Util.SummarizeException(e, ""));
                     continue;
                 }
 

@@ -151,7 +151,7 @@ namespace RandoopBare
             }
             catch (Exception e)
             {
-                Logger.Debug("Explorer raised exception {0}", e.ToString());
+                Logger.Error("Explorer raised exception {0}", e.ToString());
             }
 
             //Mono.Cecil.Cil.

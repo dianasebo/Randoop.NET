@@ -162,7 +162,7 @@ namespace Randoop
 
                             if (exceptionThrown is AccessViolationException)
                             {
-                                Logger.Debug("SECOND-CHANCE ACCESS VIOLATION EXCEPTION.");
+                                Logger.Error("SECOND-CHANCE ACCESS VIOLATION EXCEPTION.");
                                 System.Environment.Exit(1);
                             }
                         }

@@ -274,11 +274,11 @@ namespace Common
                             if (writeLineMethod == null)
                                 throw new InvalidFileFormatException("no MethodInfo is created -- possibly a wrong method delaration.");
 
-                            /*** Import the new (e.g. Logger.Debug() method) ***/
+                            /*** Import the new (e.g. Console.WriteLine() method) ***/
                             MethodReference writeLine;
                             writeLine = module.Import(writeLineMethod); //convert "MethodInfo/MethodDefinition" to "MethodReference"
 
-                            /*** Creates the CIL instruction for calling the new method (e.g. Logger.Debug(string value) method) ***/
+                            /*** Creates the CIL instruction for calling the new method (e.g. Console.WriteLine(string value) method) ***/
                             Mono.Cecil.Cil.Instruction callWriteLine;                            
                             callWriteLine = ilprocessor.Create(OpCodes.Call, writeLine);
 

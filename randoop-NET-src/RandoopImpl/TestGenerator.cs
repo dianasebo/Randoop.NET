@@ -136,7 +136,7 @@ namespace Randoop
                         }
                         catch (Exception e)
                         {
-                            Logger.Debug("Exception raised from RandomActiveMethodorConstructor is {0}", e.ToString());
+                            Logger.Error("Exception raised from RandomActiveMethodorConstructor is {0}", e.ToString());
                             continue;
                         }
 
@@ -171,7 +171,7 @@ namespace Randoop
                             }
                             catch (Exception e) // had a nasty bug in the updateActiveMethodsAndClasses, so using try-catch
                             {
-                                Logger.Debug("Exception raised from UpdateActiveMethodsAndClasses is {0}", e.ToString());
+                                Logger.Error("Exception raised from UpdateActiveMethodsAndClasses is {0}", e.ToString());
                             }
                         }
 

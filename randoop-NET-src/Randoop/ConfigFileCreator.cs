@@ -76,7 +76,7 @@ namespace Randoop
                 else
                 {
                     Logger.Debug("*** Warning: randoop could not find directory {0}.", args.ConfigFilesDir);
-                    Logger.Debug("             Will use default configuration files.");
+                    Logger.Debug("Will use default configuration files.");
                 }
             }
 

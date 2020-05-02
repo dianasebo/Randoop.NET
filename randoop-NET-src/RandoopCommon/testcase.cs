@@ -299,12 +299,12 @@ namespace Common
 
             if (this.exception.IsNoException())
             {
-                w.WriteLine("      System.Logger.Debug(\"This was expected behavior. Will exit with code 100.\");");
+                w.WriteLine("      System.Console.WriteLine(\"This was expected behavior. Will exit with code 100.\");");
                 w.WriteLine("      return 100;");
             }
             else
             {
-                w.WriteLine("      System.Logger.Debug(\"This was unexpected behavior (expected an exception). Will exit with code 99.\");");
+                w.WriteLine("      System.Console.WriteLine(\"This was unexpected behavior (expected an exception). Will exit with code 99.\");");
                 w.WriteLine("      return 99;");
             }
             w.WriteLine("    }");
@@ -313,9 +313,9 @@ namespace Common
             {
                 w.WriteLine("    catch (" + this.exception.exceptionDescriptionstring + " e)");
                 w.WriteLine("    {");
-                w.WriteLine("      System.Logger.Debug(\""
+                w.WriteLine("      System.Console.WriteLine(\""
                         + ExceptionDescription.EXCEPTION_DESCRIPTION_MARKER + "\" + e.GetType().FullName);");
-                w.WriteLine("      System.Logger.Debug(\"This was expected behavior. Will exit with code 100.\");");
+                w.WriteLine("      System.Console.WriteLine(\"This was expected behavior. Will exit with code 100.\");");
                 w.WriteLine("      return 100;");
                 w.WriteLine("    }");
             }
@@ -324,12 +324,12 @@ namespace Common
             {
                 w.WriteLine("    catch (System.Exception e)");
                 w.WriteLine("    {");
-                w.WriteLine("      System.Logger.Debug(\""
+                w.WriteLine("      System.Console.WriteLine(\""
                         + ExceptionDescription.EXCEPTION_DESCRIPTION_MARKER + "\" + e.GetType().FullName);");
-                w.WriteLine("      System.Logger.Debug(\"//STACK TRACE:\");");
-                w.WriteLine("      System.Logger.Debug(e.StackTrace);");
-                w.WriteLine("      System.Logger.Debug();");
-                w.WriteLine("      System.Logger.Debug(\"This was unexpected behavior. Will exit with code 99.\");");
+                w.WriteLine("      System.Console.WriteLine(\"//STACK TRACE:\");");
+                w.WriteLine("      System.Console.WriteLine(e.StackTrace);");
+                w.WriteLine("      System.Console.WriteLine();");
+                w.WriteLine("      System.Console.WriteLine(\"This was unexpected behavior. Will exit with code 99.\");");
                 w.WriteLine("      return 99;");
                 w.WriteLine("    }");
             }
@@ -504,8 +504,8 @@ namespace Common
             {
                 if (error.ToString().Contains("is defined in an assembly that is not referenced"))
                 {
-                    //Logger.Debug("@@@" + error.ToString());
-                    //Logger.Debug("@@@" + this.ToString());
+                    //Console.WriteLine("@@@" + error.ToString());
+                    //Console.WriteLine("@@@" + this.ToString());
                     return RunResults.CompilationFailed(RunResults.CompilFailure.MissingReference, cr.Errors);
                 }
             }
