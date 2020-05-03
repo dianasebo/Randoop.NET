@@ -41,7 +41,7 @@ namespace Randoop
     /// </summary>
     public class Randoop
     {
-        
+
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         /// DEFAULTS.
@@ -80,22 +80,22 @@ namespace Randoop
                 string mapfile = args[1];
                 string[] args2 = new string[args.Length - 2];
                 Array.Copy(args, 2, args2, 0, args.Length - 2);
-                Dictionary<string, string> methodmapper = new Dictionary<string,string>();
-                
+                Dictionary<string, string> methodmapper = new Dictionary<string, string>();
+
                 try
-                {  
+                {
                     Instrument.ParseMapFile(mapfile, ref methodmapper); //parse a file that defines the mapping between target method and replacement method
-                   
+
                     foreach (string asm in args2)
-                    {   
+                    {
                         int mapcnt = methodmapper.Count;
-                        string [] origmethods = new string [mapcnt];
+                        string[] origmethods = new string[mapcnt];
                         methodmapper.Keys.CopyTo(origmethods, 0);
                         foreach (string src in origmethods)
-                            Instrument.MethodInstrument(asm, src, methodmapper[src]);                                        
+                            Instrument.MethodInstrument(asm, src, methodmapper[src]);
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Logger.Error(ex.Message);
                     Environment.Exit(-1);
@@ -257,8 +257,8 @@ namespace Randoop
                 if (args.PageHeap) PageHeapDisableRandoop();
                 if (args.UseDHandler) DHandlerDisable();
 
-                
-                
+
+
                 // Create allstats.txt and index.html.
                 bool testsCreated;
                 if (!PostProcessTests(args, outputDir))
@@ -330,7 +330,7 @@ namespace Randoop
 
             // Analyze last execution.
             int lastPlanId;
-            
+
             AnalyzeLastExecution(executionLogFileName, out lastPlanId, outputDir);
 
             // Create a new randoop configuration.
@@ -344,9 +344,9 @@ namespace Randoop
             // Launch new instance of Randoop.
             Logger.Debug("------------------------------------");
             Logger.Debug("Spawning new input generator process (round " + round + ")");
-            
+
             Process p = new Process();
-            
+
             p.StartInfo.FileName = Enviroment.RandoopBareExe;
             p.StartInfo.Arguments = ConfigFileName.ToString(configFileInfo);
             p.StartInfo.UseShellExecute = false;
@@ -360,12 +360,12 @@ namespace Randoop
             Logger.Debug(Util.PrintProcess(p));
 
             // Give it 30 seconds to load reflection info, etc.
-            int waitTime = (Convert.ToInt32(timeForNextInvocation.TotalSeconds) + 30)*1000;
+            int waitTime = (Convert.ToInt32(timeForNextInvocation.TotalSeconds) + 30) * 1000;
 
             Logger.Debug("Will wait " + waitTime + " milliseconds for process to terminate.");
 
             p.Start();
-            
+
             if (!p.WaitForExit(waitTime))
             {
                 // Process didn't terminate. Kill it forcefully.
@@ -432,7 +432,7 @@ namespace Randoop
 
             if (tests.Count == 0)
             {
-                
+
                 return false;
             }
 
@@ -444,8 +444,8 @@ namespace Randoop
             //////////////////////////////////////////////////////////////////////
             // Create stats file.
 
-             StatsManager.ComputeStats(resultsDir + "\\allstats.txt",
-                 TestCaseUtils.CollectFilesEndingWith(".stats.txt", resultsDir));
+            StatsManager.ComputeStats(resultsDir + "\\allstats.txt",
+                TestCaseUtils.CollectFilesEndingWith(".stats.txt", resultsDir));
 
             //////////////////////////////////////////////////////////////////////
             // Create HTML index.
@@ -519,7 +519,7 @@ namespace Randoop
             }
 
         }
-                     
+
         private static void WriteAboutMessageToConsole()
         {
             Logger.Debug("Version "
@@ -613,20 +613,20 @@ namespace Randoop
             dHandlerProcess.Start();
         }
 
-            private static bool IsHelpCommand(string p)
-            {
-                return p.ToLower().Equals("/?")
-                   ||
-                   p.ToLower().Equals("-?")
-                   ||
-                   p.ToLower().Equals("--?")
-                   ||
-                   p.ToLower().Equals("/help")
-                   ||
-                   p.ToLower().Equals("-help")
-                   ||
-                   p.ToLower().Equals("--help");
-            }
+        private static bool IsHelpCommand(string p)
+        {
+            return p.ToLower().Equals("/?")
+               ||
+               p.ToLower().Equals("-?")
+               ||
+               p.ToLower().Equals("--?")
+               ||
+               p.ToLower().Equals("/help")
+               ||
+               p.ToLower().Equals("-help")
+               ||
+               p.ToLower().Equals("--help");
+        }
 
         private static void AddMethodToOmit(string line, string outputDir)
         {

@@ -76,6 +76,7 @@
   <ItemGroup>
     <Compile Include="CommandLineArguments.cs" />
     <Compile Include="ConfigFileCreator.cs" />
+    <Compile Include="HelpScreen.cs" />
     <Compile Include="HtmlSummaryGenerator.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
