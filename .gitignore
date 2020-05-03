@@ -520,3 +520,4 @@ FakesAssemblies/
 *.opt
 /randoop-NET-src/ZipFolder
 /log.txt
+/randoop-NET-src/compiledate.txt
