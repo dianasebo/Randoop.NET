@@ -53,7 +53,8 @@ namespace Randoop
         /// </summary>
         static void Main(string[] args)
         {
-            Logger.Debug("Randoop.NET: an API fuzzer for .Net. Version {0} (compiled {1}).",
+            NLogConfigManager.CreateFileConfig();
+            Console.WriteLine("Randoop.NET: an API fuzzer for .Net. Version {0} (compiled {1}).",
                 Enviroment.RandoopVersion, Enviroment.RandoopCompileDate);
 
             if (args.Length == 0 || IsHelpCommand(args[0]))
@@ -64,7 +65,7 @@ namespace Randoop
 
             if (ContainsHelp(args))
             {
-                Logger.Debug(HelpScreen.Usagestring());
+                Console.WriteLine(HelpScreen.Usagestring());
                 Environment.Exit(0);
             }
 
@@ -97,7 +98,7 @@ namespace Randoop
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(ex.Message);
+                    Console.WriteLine(ex.Message);
                     Environment.Exit(-1);
                 }
 
@@ -160,9 +161,9 @@ namespace Randoop
             string[] args2 = new string[args.Length - 1];
             Array.Copy(args, 1, args2, 0, args.Length - 1);
             Collection<FileInfo> oldTests = TestCaseUtils.CollectFilesEndingWith(".cs", args2);
-            Logger.Debug("Number of original tests: " + oldTests.Count);
+            Console.WriteLine("Number of original tests: " + oldTests.Count);
             Collection<FileInfo> newTests = reduction(oldTests);
-            Logger.Debug("Number of reduced tests: " + newTests.Count);
+            Console.WriteLine("Number of reduced tests: " + newTests.Count);
             Environment.Exit(0);
         }
 
@@ -189,7 +190,7 @@ namespace Randoop
                 out errorMessage);
             if (errorMessage != null)
             {
-                Logger.Error("Error in command-line arguments: " + errorMessage);
+                Console.WriteLine("Error in command-line arguments: " + errorMessage);
                 Environment.Exit(1);
             }
 
@@ -264,7 +265,7 @@ namespace Randoop
                 if (!PostProcessTests(args, outputDir))
                 {
                     testsCreated = false;
-                    Logger.Debug("No tests created.");
+                    Console.WriteLine("No tests created.");
                 }
                 else
                 {
@@ -282,9 +283,9 @@ namespace Randoop
             }
             catch (Exception e)
             {
-                Logger.Error("*** Randoop error. "
+                Console.WriteLine("*** Randoop error. "
                     + "Please report this error to Randoop's developers.");
-                Logger.Error(e);
+                Console.WriteLine(e);
                 Environment.Exit(1);
             }
             finally
@@ -292,14 +293,14 @@ namespace Randoop
                 // Delete temp dir.
                 if (tempDir != null)
                 {
-                    Logger.Debug("Removing temporary directory: " + tempDir);
+                    Console.WriteLine("Removing temporary directory: " + tempDir);
                     try
                     {
                         new DirectoryInfo(tempDir).Delete(true);
                     }
                     catch (Exception e)
                     {
-                        Logger.Error("Exception raised while deleting temporary directory: " + e.Message);
+                        Console.WriteLine("Exception raised while deleting temporary directory: " + e.Message);
                     }
                 }
             }
@@ -343,8 +344,8 @@ namespace Randoop
             FileInfo configFileInfo = new FileInfo(configFileName);
 
             // Launch new instance of Randoop.
-            Logger.Debug("------------------------------------");
-            Logger.Debug("Spawning new input generator process (round " + round + ")");
+            Console.WriteLine("------------------------------------");
+            Console.WriteLine("Spawning new input generator process (round " + round + ")");
 
             Process p = new Process();
 
@@ -357,20 +358,20 @@ namespace Randoop
             p.StartInfo.WorkingDirectory = tempDir;
 
 
-            Logger.Debug("Spawning process: ");
-            Logger.Debug(Util.PrintProcess(p));
+            Console.WriteLine("Spawning process: ");
+            Console.WriteLine(Util.PrintProcess(p));
 
             // Give it 30 seconds to load reflection info, etc.
             int waitTime = (Convert.ToInt32(timeForNextInvocation.TotalSeconds) + 30) * 1000;
 
-            Logger.Debug("Will wait " + waitTime + " milliseconds for process to terminate.");
+            Console.WriteLine("Will wait " + waitTime + " milliseconds for process to terminate.");
 
             p.Start();
 
             if (!p.WaitForExit(waitTime))
             {
                 // Process didn't terminate. Kill it forcefully.
-                Logger.Debug("Killing process " + p.Id);
+                Console.WriteLine("Killing process " + p.Id);
                 try
                 {
                     p.Kill();
@@ -392,15 +393,15 @@ namespace Randoop
             {
                 if (err.Contains(Enviroment.RandoopBareInternalErrorMessage))
                 {
-                    Logger.Error(err);
-                    Logger.Error("*** RandoopBare had an internal error. Exiting.");
+                    Console.WriteLine(err);
+                    Console.WriteLine("*** RandoopBare had an internal error. Exiting.");
                     return p.ExitCode;
                 }
 
                 if (err.Contains(Enviroment.RandoopBareInvalidUserParametersErrorMessage))
                 {
-                    Logger.Error(err);
-                    Logger.Debug("*** RandoopBare terminated normally. Exiting.");
+                    Console.WriteLine(err);
+                    Console.WriteLine("*** RandoopBare terminated normally. Exiting.");
                     return p.ExitCode;
                 }
 
@@ -454,8 +455,8 @@ namespace Randoop
             //HtmlSummary.CreateIndexHtml(classifiedTests, resultsDir + "\\index.html", args.ToString());
             HtmlSummary.CreateIndexHtml2(classifiedTests, resultsDir + "\\index.html", args.ToString());
 
-            Logger.Debug("Results written to " + resultsDir + ".");
-            Logger.Debug("You can browse the results by opening the file "
+            Console.WriteLine("Results written to " + resultsDir + ".");
+            Console.WriteLine("You can browse the results by opening the file "
                 + Environment.NewLine
                 + "   " + resultsDir + "\\index.html");
 
@@ -523,7 +524,7 @@ namespace Randoop
 
         private static void WriteAboutMessageToConsole()
         {
-            Logger.Debug("Version "
+            Console.WriteLine("Version "
             + Enviroment.RandoopVersion
             + "."
             + Environment.NewLine
@@ -547,7 +548,7 @@ namespace Randoop
 
         private static void PrintStats(Dictionary<TestCase.ExceptionDescription, Collection<FileInfo>> testsByMessage)
         {
-            Logger.Debug("Results statistics:");
+            Console.WriteLine("Results statistics:");
             foreach (TestCase.ExceptionDescription message in testsByMessage.Keys)
             {
                 string testCount =
@@ -556,7 +557,7 @@ namespace Randoop
                     + (testsByMessage[message].Count > 1 ? "s" : "")
                     + ":";
                 testCount = testCount.PadRight(15, ' ');
-                Logger.Debug(testCount + message.ExceptionDescriptionString);
+                Console.WriteLine(testCount + message.ExceptionDescriptionString);
             }
         }
 
@@ -568,8 +569,8 @@ namespace Randoop
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.ErrorDialog = true;
 
-            Logger.Debug("Starting process:");
-            Logger.Debug(Util.PrintProcess(p));
+            Console.WriteLine("Starting process:");
+            Console.WriteLine(Util.PrintProcess(p));
 
             p.Start();
             p.WaitForExit();
@@ -583,8 +584,8 @@ namespace Randoop
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.ErrorDialog = true;
 
-            Logger.Debug("Starting process:");
-            Logger.Debug(Util.PrintProcess(p));
+            Console.WriteLine("Starting process:");
+            Console.WriteLine(Util.PrintProcess(p));
 
             p.Start();
             p.WaitForExit();
@@ -597,7 +598,7 @@ namespace Randoop
         {
             if (dHandlerProcess != null)
             {
-                Logger.Debug("Killing DHandler process.");
+                Console.WriteLine("Killing DHandler process.");
                 dHandlerProcess.Kill();
             }
         }
@@ -609,8 +610,8 @@ namespace Randoop
             dHandlerProcess.StartInfo.Arguments = "/I:\"" + Common.Enviroment.DefaultDhi + "\"";
             dHandlerProcess.StartInfo.UseShellExecute = false;
             dHandlerProcess.StartInfo.ErrorDialog = true;
-            Logger.Debug("Starting process:");
-            Logger.Debug(Util.PrintProcess(dHandlerProcess));
+            Console.WriteLine("Starting process:");
+            Console.WriteLine(Util.PrintProcess(dHandlerProcess));
             dHandlerProcess.Start();
         }
 
@@ -651,7 +652,7 @@ namespace Randoop
         private static void Createforbid_memberFile(string methodName, string outputDir)
         {
             string newConfigFileName = outputDir + "\\" + Path.GetRandomFileName();
-            Logger.Debug("Creating config file {0}.", newConfigFileName);
+            Console.WriteLine("Creating config file {0}.", newConfigFileName);
             StreamWriter w = new StreamWriter(newConfigFileName);
             w.WriteLine(methodName);
             w.Close();

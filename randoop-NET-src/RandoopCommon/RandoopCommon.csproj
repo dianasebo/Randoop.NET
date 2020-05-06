@@ -92,6 +92,7 @@
     <Compile Include="ActionSet.cs" />
     <Compile Include="Environment.cs" />
     <Compile Include="EquivalenceClass.cs" />
+    <Compile Include="NLogConfigManager.cs" />
     <Compile Include="Reducer.cs" />
     <Compile Include="SequenceBasedEquivalenceClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -142,9 +143,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
