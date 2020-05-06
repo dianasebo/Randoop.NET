@@ -1,10 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <StartArguments>"D:\Licenta\Randoop.NET\ClassLibrary1\ClassLibrary1\bin\Debug\ClassLibrary1.dll"</StartArguments>
+    <StartArguments>
+    </StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <StartArguments>"D:\Licenta\ClassLibraryForTest\bin\Debug\netstandard2.0\ClassLibraryForTest.dll"</StartArguments>
+    <StartArguments>/configfiles:"c:\users\sebod\appdata\local\microsoft\visualstudio\16.0_6f1efaa4exp\extensions\diana sebÖ\randoopextension\1.0\randoop-NET-release\config_files" /noexplorer /timelimit:10 /restart:10 /outputnormal /outputdir:"D:\Licenta\ClassLibraryForTest\bin\Debug\netstandard2.0\randoop_output" "D:\Licenta\ClassLibraryForTest\bin\Debug\netstandard2.0\ClassLibraryForTest.dll"</StartArguments>
   </PropertyGroup>
   <PropertyGroup>
     <PublishUrlHistory />

@@ -271,8 +271,9 @@ namespace Randoop
                     testsCreated = true;
                 }
 
-                if (!args.KeepStatLogs)
-                    DeleteStatLogs(outputDir);
+                //TODO: Fix crash
+                //if (!args.KeepStatLogs)
+                //    DeleteStatLogs(outputDir);
 
 
                 // The final step invokes IE and displays a summary (file index.html).

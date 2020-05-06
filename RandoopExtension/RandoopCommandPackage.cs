@@ -1,7 +1,9 @@
-﻿using System;
+﻿using EnvDTE;
+using EnvDTE80;
+using Microsoft.VisualStudio.Shell;
+using System;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Microsoft.VisualStudio.Shell;
 using Task = System.Threading.Tasks.Task;
 
 namespace RandoopExtension
@@ -24,13 +26,15 @@ namespace RandoopExtension
     /// </para>
     /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [Guid(RandoopExtensionPackage.PackageGuidString)]
-    public sealed class RandoopExtensionPackage : AsyncPackage
+    [Guid(PackageGuidString)]
+    [ProvideMenuResource("Menus.ctmenu", 1)]
+    public sealed class RandoopCommandPackage : AsyncPackage
     {
         /// <summary>
         /// RandoopExtensionPackage GUID string.
         /// </summary>
         public const string PackageGuidString = "343d627f-5c79-4922-87b9-c04b280e571d";
+        public static DTE2 App;
 
         #region Package Members
 
@@ -45,7 +49,10 @@ namespace RandoopExtension
         {
             // When initialized asynchronously, the current thread may be a background thread at this point.
             // Do any initialization that requires the UI thread after switching to the UI thread.
-            await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+            await RandoopCommand.InitializeAsync(this);
+            DTE2 dte = (DTE2)await GetServiceAsync(typeof(DTE));
+            App = dte;
         }
 
         #endregion
