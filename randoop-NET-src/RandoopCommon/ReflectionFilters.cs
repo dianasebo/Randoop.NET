@@ -88,7 +88,7 @@ namespace Randoop
         public bool OkToUse(MethodInfo m, out string message)
         {
             if (m == null) throw new ArgumentNullException("m");
-            string toCheckStr = m.DeclaringType.ToString() + "." + m.ToString(); //xiao.qu@us.abb.com
+            string toCheckStr = m.DeclaringType.ToString() + "." + m.Name; //xiao.qu@us.abb.com
             return OkToUseInternal(toCheckStr + "/" + m.ReturnType.ToString(), this.require_members, this.forbid_members, out message); //xiao.qu@us.abb.com
             //return OkToUseInternal(m.ToString() + "/" + m.ReturnType.ToString(), this.require_members, this.forbid_members, out message); //xiao.qu@us.abb.com
         }
@@ -365,7 +365,7 @@ namespace Randoop
 
         public bool OkToUse(MethodInfo m, out string message)
         {
-                return OkToUseBase(m, out message);            
+            return OkToUseBase(m, out message);
         }
 
         /// <summary>
