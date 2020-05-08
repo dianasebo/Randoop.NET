@@ -1,4 +1,5 @@
 ﻿using NLog;
+using System;
 
 namespace Common
 {
@@ -8,7 +9,8 @@ namespace Common
         {
             var config = new NLog.Config.LoggingConfiguration();
 
-            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "file.txt" };
+            var currentDate = DateTime.Now.ToString("dd.MM-HH.mm");
+            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "randoop_output/log/" + currentDate + ".txt" };
 
             config.AddRule(LogLevel.Debug, LogLevel.Fatal, logfile);
 

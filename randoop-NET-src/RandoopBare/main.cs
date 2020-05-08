@@ -25,7 +25,7 @@ namespace RandoopBare
 
     class MainMethod
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.Logger Logger;
 
         /// <summary>
         /// RandoopBare.MainMethod is the entrypoint into the Randoop
@@ -66,13 +66,16 @@ namespace RandoopBare
 
         private static void Main2(string[] args)
         {
+            NLogConfigManager.CreateFileConfig();
+            Logger = NLog.LogManager.GetCurrentClassLogger();
+
             if (args.Length != 1)
             {
                 throw new InvalidUserParamsException(
                     "RandoopBare takes exactly one argument but was "
                     + "given the following arguments:"
                     + System.Environment.NewLine
-                    + Util.PrintArray(args));;
+                    + Util.PrintArray(args)); ;
             }
 
             // Parse XML file with generation parameters.
