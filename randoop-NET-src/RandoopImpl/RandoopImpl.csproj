@@ -64,6 +64,10 @@
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.7.0\lib\net45\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="RandoopContracts, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\randoop-contracts\RandoopContracts\bin\Release\netstandard2.0\RandoopContracts.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -83,7 +87,9 @@
     <Compile Include="Actions\ListConstructor.cs" />
     <Compile Include="Actions\MethodCall.cs" />
     <Compile Include="Actions\PrimitiveValueCreator.cs" />
+    <Compile Include="ContractAssertionGenerator.cs" />
     <Compile Include="ExecutionTimeTracking.cs" />
+    <Compile Include="RegressionAssertionGenerator.cs" />
     <Compile Include="TestGenerator.cs" />
     <Compile Include="TestManager.cs" />
     <Compile Include="TestPool.cs" />

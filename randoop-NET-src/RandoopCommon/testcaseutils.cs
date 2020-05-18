@@ -11,7 +11,6 @@
 
 
 
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -99,7 +98,7 @@ namespace Common
         {
             TestCase testFile = new TestCase(testPath);
 
-            testFile.WriteToFile(testPath + ".nonmin", false);
+            testFile.WriteToFile(testPath + ".nonmin");
 
             int linesRemoved = 0;
 
@@ -119,7 +118,7 @@ namespace Common
                 }
             }
 
-            testFile.WriteToFile(testPath, false);
+            testFile.WriteToFile(testPath);
             return linesRemoved;
         }
         public static Collection<FileInfo> RemoveNonReproducibleErrors(Collection<FileInfo> partitionedTests)

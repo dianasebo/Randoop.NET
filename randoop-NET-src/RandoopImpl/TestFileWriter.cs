@@ -42,8 +42,8 @@ namespace Randoop
                 writeTest = false;
             }
 
-            if(writeTest)
-                code.WriteToFile(fileName, true);
+            if (writeTest)
+                code.WriteToFile(fileName);
         }
     }
 

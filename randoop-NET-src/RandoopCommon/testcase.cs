@@ -78,7 +78,7 @@ namespace Common
         public ExceptionDescription exception;
         private Collection<string> imports;
         private Collection<RefAssembly> refAssemblies;
-        private string className;
+        private readonly string className;
         private Collection<string> testCode;
         public readonly Collection<string> testPlanCollection; //xiao.qu@us.abb.com adds to get call sequence for sequence-based reducer (11/05/2012)
 
@@ -90,13 +90,8 @@ namespace Common
         public TestCase(LastAction lastAction, ExceptionDescription exception, Collection<string> imports,
             Collection<string> assemblies, string className, Collection<string> testCode)
         {
-            // Last action.
-            if (lastAction == null) throw new ArgumentNullException();
-            this.lastAction = lastAction;
-
-            // Exception.
-            if (exception == null) throw new ArgumentNullException();
-            this.exception = exception;
+            this.lastAction = lastAction ?? throw new ArgumentNullException();
+            this.exception = exception ?? throw new ArgumentNullException();
 
             // Imports.
             if (imports == null) throw new ArgumentNullException();
@@ -108,11 +103,11 @@ namespace Common
             }
 
             // Referenced assemblies.
-            this.refAssemblies = new Collection<RefAssembly>();
+            refAssemblies = new Collection<RefAssembly>();
             foreach (string s in assemblies)
             {
                 if (s == null) throw new ArgumentNullException();
-                this.refAssemblies.Add(new RefAssembly(RefAssembly.REFASSEMBLY_MARKER + s));
+                refAssemblies.Add(new RefAssembly(RefAssembly.REFASSEMBLY_MARKER + s));
             }
 
             // Class name.
@@ -142,7 +137,7 @@ namespace Common
             }
             catch (Exception e)
             {
-                Common.Enviroment.Fail("Encountered a problem when attempting to read file "
+                Enviroment.Fail("Encountered a problem when attempting to read file "
                     + filePath
                     + ". Exception message: "
                     + e.Message);
@@ -156,24 +151,24 @@ namespace Common
                 line = reader.ReadLine();
                 if (line == null || !line.StartsWith(LastAction.LASTACTION_MARKER)) throw new TestCaseParseException(filePath);
                 line = line.Trim();
-                this.lastAction = new LastAction(line);
+                lastAction = new LastAction(line);
 
                 // Read exception.
                 line = reader.ReadLine();
                 if (line == null || !line.StartsWith(ExceptionDescription.EXCEPTION_DESCRIPTION_MARKER)) throw new TestCaseParseException(filePath);
                 line = line.Trim();
-                this.exception = new ExceptionDescription(line);
+                exception = new ExceptionDescription(line);
 
                 // Read imports.
-                this.imports = new Collection<string>();
+                imports = new Collection<string>();
                 while (((line = reader.ReadLine()) != null) && line.Trim().StartsWith("using"))
                 {
-                    this.imports.Add(line.Trim());
+                    imports.Add(line.Trim());
                 }
 
                 // Read class name.
                 if (line == null || !line.Trim().StartsWith("public class")) throw new TestCaseParseException(filePath);
-                this.className = line.Trim().Substring("public class".Length);
+                className = line.Trim().Substring("public class".Length);
 
                 // Read open bracket (class).
                 line = reader.ReadLine();
@@ -198,17 +193,17 @@ namespace Common
                 if (line == null || !line.Trim().Equals("{")) throw new TestCaseParseException(filePath);
 
                 // Read testCode.
-                this.testCode = new Collection<string>();
+                testCode = new Collection<string>();
                 line = reader.ReadLine();
                 if (line == null || !line.Trim().Equals(BEGIN_TEST_MARKER)) throw new TestCaseParseException(filePath);
                 while (((line = reader.ReadLine()) != null) && !line.Trim().Equals(END_TEST_MARKER))
                 {
-                    this.testCode.Add(line.Trim());
+                    testCode.Add(line.Trim());
                 }
                 if (line == null || !line.Trim().Equals(END_TEST_MARKER)) throw new TestCaseParseException(filePath);
 
                 // Read test plan collections from testCode. --- xiao.qu@us.abb.com adds for sequence-based reducer
-                this.testPlanCollection = new Collection<string>();
+                testPlanCollection = new Collection<string>();
                 bool planStart = false;
                 foreach (string testline in testCode)
                 {
@@ -221,7 +216,7 @@ namespace Common
                     if ((planStart == true) && !(testline.Trim().StartsWith("*/")))
                     {
                         if ((testline == null) || !testline.Trim().StartsWith("plan")) throw new TestCaseParseException(filePath);
-                        this.testPlanCollection.Add(testline.Trim());
+                        testPlanCollection.Add(testline.Trim());
                     }
 
                     if (testline.Trim().StartsWith("*/")) break;
@@ -231,12 +226,12 @@ namespace Common
                 // Everything that remains to read are the assemblies referenced.
 
                 // Read assemblies referenced.
-                this.refAssemblies = new Collection<RefAssembly>();
+                refAssemblies = new Collection<RefAssembly>();
                 while (((line = reader.ReadLine()) != null))
                 {
                     if (line.Trim().StartsWith(RefAssembly.REFASSEMBLY_MARKER))
                     {
-                        this.refAssemblies.Add(new RefAssembly(line.Trim()));
+                        refAssemblies.Add(new RefAssembly(line.Trim()));
                     }
                 }
             }
@@ -248,24 +243,24 @@ namespace Common
 
         public IEnumerable<string> Imports
         {
-            get { return this.imports; }
+            get { return imports; }
         }
 
         /// <summary>
         /// Writes this test case to a file.
         /// </summary>
-        public void WriteToFile(string filePath, bool declareMainMethod)
+        public void WriteToFile(string filePath)
         {
-            using(var w = new StreamWriter(filePath))
+            using (var w = new StreamWriter(filePath))
                 Write(w);
         }
 
         /// <summary>
         /// Writes this test case to a file.
         /// </summary>
-        public void WriteToFile(FileInfo filePath, bool declareMainMethod)
+        public void WriteToFile(FileInfo filePath)
         {
-            using(var w = new StreamWriter(filePath.FullName))
+            using (var w = new StreamWriter(filePath.FullName))
                 Write(w);
         }
 
@@ -275,70 +270,70 @@ namespace Common
         /// </summary>
         public void Write(TextWriter w)
         {
-            w.WriteLine(this.lastAction.ToString());
-            w.WriteLine(this.exception.ToString());
+            w.WriteLine(lastAction.ToString());
+            w.WriteLine(exception.ToString());
 
-            foreach (string s in this.imports)
+            foreach (string s in imports)
             {
                 w.WriteLine(s);
             }
             //w.WriteLine("using System.Diagnostics;"); //xiao.qu@us.abb.com added
-            w.WriteLine("public class " + this.className);
+            w.WriteLine("public class " + className);
             w.WriteLine("{");
-            w.WriteLine("  public static int Main()");
-            w.WriteLine("  {");
-            w.WriteLine("    try");
-            w.WriteLine("    {");
-            w.WriteLine("      " + BEGIN_TEST_MARKER);            
-            foreach (string s in this.testCode)
+            w.WriteLine("\tpublic static int Main()");
+            w.WriteLine("\t{");
+            w.WriteLine("\t\ttry");
+            w.WriteLine("\t\t{");
+            w.WriteLine("\t\t\t" + BEGIN_TEST_MARKER);
+            foreach (string s in testCode)
             {
-                w.WriteLine("      " + s);                
+                w.WriteLine("\t\t\t" + s);
             }
-                        
-            w.WriteLine("      " + END_TEST_MARKER);
 
-            if (this.exception.IsNoException())
+            w.WriteLine("\t\t\t" + END_TEST_MARKER);
+
+            if (exception.IsNoException())
             {
-                w.WriteLine("      System.Console.WriteLine(\"This was expected behavior. Will exit with code 100.\");");
-                w.WriteLine("      return 100;");
+                w.WriteLine("\t\t\tSystem.Console.WriteLine(\"This was expected behavior. Will exit with code 100.\");");
+                w.WriteLine("\t\t\treturn 100;");
             }
             else
             {
-                w.WriteLine("      System.Console.WriteLine(\"This was unexpected behavior (expected an exception). Will exit with code 99.\");");
-                w.WriteLine("      return 99;");
+                w.WriteLine("\t\t\tSystem.Console.WriteLine(\"This was unexpected behavior (expected an exception). Will exit with code 99.\");");
+                w.WriteLine("\t\t\treturn 99;");
             }
-            w.WriteLine("    }");
+            w.WriteLine("\t\t}");
             // TODO the two clauses below mean the same thing. pick one and make sure it's used throughout.
-            if (!this.exception.IsNoException() && !this.exception.Equals(assertionViolation))
+            if (!exception.IsNoException() && !exception.Equals(assertionViolation))
             {
-                w.WriteLine("    catch (" + this.exception.exceptionDescriptionstring + " e)");
-                w.WriteLine("    {");
-                w.WriteLine("      System.Console.WriteLine(\""
+                w.WriteLine("\t\tcatch (" + exception.exceptionDescriptionstring + " e)");
+                w.WriteLine("\t\t{");
+                w.WriteLine("\t\t\tSystem.Console.WriteLine(\""
                         + ExceptionDescription.EXCEPTION_DESCRIPTION_MARKER + "\" + e.GetType().FullName);");
-                w.WriteLine("      System.Console.WriteLine(\"This was expected behavior. Will exit with code 100.\");");
-                w.WriteLine("      return 100;");
-                w.WriteLine("    }");
+                w.WriteLine("\t\t\tSystem.Console.WriteLine(\"This was expected behavior. Will exit with code 100.\");");
+                w.WriteLine("\t\t\treturn 100;");
+                w.WriteLine("\t\t}");
             }
 
-            if (!this.exception.Equals(ExceptionDescription.GetDescription(typeof(Exception))))
+            if (!exception.Equals(ExceptionDescription.GetDescription(typeof(Exception))))
             {
-                w.WriteLine("    catch (System.Exception e)");
-                w.WriteLine("    {");
-                w.WriteLine("      System.Console.WriteLine(\""
+                w.WriteLine("\t\tcatch (System.Exception e)");
+                w.WriteLine("\t\t{");
+                w.WriteLine("\t\t\tSystem.Console.WriteLine(\""
                         + ExceptionDescription.EXCEPTION_DESCRIPTION_MARKER + "\" + e.GetType().FullName);");
-                w.WriteLine("      System.Console.WriteLine(\"//STACK TRACE:\");");
-                w.WriteLine("      System.Console.WriteLine(e.StackTrace);");
-                w.WriteLine("      System.Console.WriteLine();");
-                w.WriteLine("      System.Console.WriteLine(\"This was unexpected behavior. Will exit with code 99.\");");
-                w.WriteLine("      return 99;");
-                w.WriteLine("    }");
+                w.WriteLine("\t\t\tSystem.Console.WriteLine(\"//STACK TRACE:\");");
+                w.WriteLine("\t\t\tSystem.Console.WriteLine(e.StackTrace);");
+                w.WriteLine("\t\t\tSystem.Console.WriteLine();");
+                w.WriteLine("\t\t\tSystem.Console.WriteLine(\"This was unexpected behavior. Will exit with code 99.\");");
+                w.WriteLine("\t\t\treturn 99;");
+                w.WriteLine("\t\t}");
             }
-            w.WriteLine("  }");
+            w.WriteLine("\t}");
             w.WriteLine("}");
 
             // Print referenced assemblies at the end
             // to avoid too much ugliness at top of file.
-            foreach (RefAssembly ra in this.refAssemblies)
+            foreach (RefAssembly ra in refAssemblies)
             {
                 w.WriteLine(ra.ToString());
             }
@@ -358,7 +353,7 @@ namespace Common
             w.WriteLine("public void {0}()", testName);
             w.WriteLine("{");
             w.Indent++;
-            foreach (string s in this.testCode)
+            foreach (string s in testCode)
                 w.WriteLine(s);
             w.Indent--;
             w.WriteLine("}");
@@ -374,8 +369,8 @@ namespace Common
 
         public string RemoveLine(int line)
         {
-            string retval = this.testCode[line];
-            this.testCode.RemoveAt(line);
+            string retval = testCode[line];
+            testCode.RemoveAt(line);
             return retval;
         }
 
@@ -384,13 +379,13 @@ namespace Common
         {
             get
             {
-                return this.testCode.Count;
+                return testCode.Count;
             }
         }
 
         public void AddLine(int line, string oldLine)
         {
-            this.testCode.Insert(line, oldLine);
+            testCode.Insert(line, oldLine);
         }
 
         public static TestCase Dummy(string className)
@@ -399,8 +394,10 @@ namespace Common
             ExceptionDescription exception = ExceptionDescription.NoException();
             Collection<string> imports = new Collection<string>();
             Collection<string> assemblies = new Collection<string>();
-            Collection<string> testCode = new Collection<string>();
-            testCode.Add("/* Source code printing failed. */");
+            Collection<string> testCode = new Collection<string>
+            {
+                "/* Source code printing failed. */"
+            };
             return new TestCase(lastAction, exception, imports, assemblies, className, testCode);
         }
 
@@ -469,17 +466,17 @@ namespace Common
 
             // Compile sources.
             CodeDomProvider provider = new Microsoft.CSharp.CSharpCodeProvider();
-            CompilerResults cr = provider.CompileAssemblyFromSource(cp, this.ToString());
+            CompilerResults cr = provider.CompileAssemblyFromSource(cp, ToString());
             if (cr.Errors.Count > 0)
                 return AppropriateErrorResult(cr);
 
             // Run test in separate process.
             Process p = new Process();
-            p.StartInfo.FileName = Common.Enviroment.MiniDHandler;
+            p.StartInfo.FileName = Enviroment.MiniDHandler;
             p.StartInfo.RedirectStandardOutput = true;
             StringBuilder arguments = new StringBuilder();
             arguments.Append("/O:\"C:\\foobar.txt\"");
-            arguments.Append(" /I:" + "\"" + Common.Enviroment.DefaultDhi + "\"");
+            arguments.Append(" /I:" + "\"" + Enviroment.DefaultDhi + "\"");
             arguments.Append(" /App:\"Temp\"");
             p.StartInfo.Arguments = arguments.ToString();
             p.StartInfo.UseShellExecute = false;
@@ -487,7 +484,7 @@ namespace Common
             p.StartInfo.CreateNoWindow = false;
 
             p.Start();
-            string output = p.StandardOutput.ReadToEnd();
+            p.StandardOutput.ReadToEnd();
             p.WaitForExit(10000);
 
             // Exit code 100 means behavior was reproduced.
@@ -568,7 +565,7 @@ namespace Common
                 if (!s.StartsWith(LASTACTION_MARKER))
                     throw new ArgumentException("Last action description must start with "
                         + LASTACTION_MARKER);
-                this.lastActionstring = s.Substring(LASTACTION_MARKER.Length).Trim();
+                lastActionstring = s.Substring(LASTACTION_MARKER.Length).Trim();
             }
 
             public override string ToString()
@@ -578,15 +575,14 @@ namespace Common
 
             public override bool Equals(object obj)
             {
-                LastAction other = obj as LastAction;
-                if (other == null) return false;
-                return other.lastActionstring == this.lastActionstring;
+                if (!(obj is LastAction other)) return false;
+                return other.lastActionstring == lastActionstring;
 
             }
 
             public override int GetHashCode()
             {
-                return this.lastActionstring.GetHashCode();
+                return lastActionstring.GetHashCode();
             }
         }
 
@@ -601,12 +597,12 @@ namespace Common
 
             public RefAssembly(string s)
             {
-                if (s == null) throw new ArgumentNullException("s");
+                if (s == null) throw new ArgumentNullException(nameof(s));
                 s = s.Trim();
                 if (!s.StartsWith(REFASSEMBLY_MARKER))
                     throw new ArgumentException("Ref assembly line must start with "
                         + REFASSEMBLY_MARKER);
-                this.refAssemblyString = s.Substring(REFASSEMBLY_MARKER.Length).Trim();
+                refAssemblyString = s.Substring(REFASSEMBLY_MARKER.Length).Trim();
             }
 
             public override string ToString()
@@ -616,15 +612,14 @@ namespace Common
 
             public override bool Equals(object obj)
             {
-                RefAssembly other = obj as RefAssembly;
-                if (other == null) return false;
-                return other.refAssemblyString == this.refAssemblyString;
+                if (!(obj is RefAssembly other)) return false;
+                return other.refAssemblyString == refAssemblyString;
 
             }
 
             public override int GetHashCode()
             {
-                return this.refAssemblyString.GetHashCode();
+                return refAssemblyString.GetHashCode();
             }
         }
 
@@ -642,7 +637,7 @@ namespace Common
         public class ExceptionDescription
         {
             public static readonly string EXCEPTION_DESCRIPTION_MARKER = "//EXCEPTION:";
-            private static readonly string NO_EXCEPTION_string = "none";
+            private const string NO_EXCEPTION_string = "none";
             public readonly string exceptionDescriptionstring;
 
             public string ExceptionDescriptionString

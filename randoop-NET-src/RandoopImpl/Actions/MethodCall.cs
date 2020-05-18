@@ -30,9 +30,9 @@ namespace Randoop
         private readonly bool[] defaultActiveResultTypes;
         public bool DeclaringMethodOverridesEquals;
 
-        public int timesExecuted = 0; 
+        public int timesExecuted = 0;
         public double executionTimeAccum = 0;
-        public int timesReturnValRetrived = 0; //xiao.qu@us.abb.com adds
+        public int timesReturnValRetrieved = 0; //xiao.qu@us.abb.com adds
 
         public int ReceiverUnchangedCount = 0;
 
@@ -97,7 +97,7 @@ namespace Randoop
             MethodCall t = obj as MethodCall;
             if (t == null)
                 return false;
-            return (this.method.Equals(t.method));
+            return (method.Equals(t.method));
         }
 
         public override int GetHashCode()
@@ -155,114 +155,6 @@ namespace Randoop
                 DeclaringMethodOverridesEquals = false;
         }
 
-        private string GenRegressionAssertion(object retVal, string newValueName) //xiao.qu@us.abb.com adds
-        {
-            StringBuilder b = new StringBuilder();
-            if (retVal != null) //CASE2
-            {
-                b.Append("\r\n      //Regression assertion (captures the current behavior of the code)\r\n");
-
-                if (retVal.GetType() == typeof(System.String))
-                {
-                    string temp = retVal.ToString().Replace("\\", "\\\\").Replace("\n", "\\n").Replace("\r", "\\r");
-                    temp = temp.Replace("\"", "\\\"");                    
-                    b.Append("      Assert.AreEqual(" + "\"" + temp + "\", " + newValueName +
-                        ",\"Regression Failure? [" + this.timesReturnValRetrived.ToString() + "]\");\r\n");
-
-                    return b.ToString();
-                }
-                else //not string
-                {
-                    //if (retVal.GetType().IsPrimitive)
-                    bool isPrimitive = false;
-
-                    if (retVal.GetType() == typeof(bool))
-                    {
-                        b.Append("      Assert.AreEqual<System.Boolean>(" + retVal.ToString().ToLower() + ", "
-                            + newValueName + ",\"Regression Failure? [" + this.timesReturnValRetrived.ToString() + "]\");\r\n");
-
-                        isPrimitive = true;
-                    }
-
-                    if (retVal.GetType() == typeof(byte))
-                    {
-                        b.Append("      Assert.AreEqual<byte>(" + retVal.ToString() + ", "
-                            + newValueName + ",\"Regression Failure? [" + this.timesReturnValRetrived.ToString() + "]\");\r\n");
-
-                        isPrimitive = true;
-                    }
-
-                    if (retVal.GetType() == typeof(short))
-                    {
-                        b.Append("      Assert.AreEqual<short>(" + retVal.ToString() + ", "
-                            + newValueName + ",\"Regression Failure? [" + this.timesReturnValRetrived.ToString() + "]\");\r\n");
-
-                        isPrimitive = true;
-                    }
-
-                    if (retVal.GetType() == typeof(int))
-                    {
-                        b.Append("      Assert.AreEqual<int>(" + retVal.ToString() + ", "
-                            + newValueName + ",\"Regression Failure? [" + this.timesReturnValRetrived.ToString() + "]\");\r\n");
-
-                        isPrimitive = true;
-                    }
-
-                    if (retVal.GetType() == typeof(long))
-                    {
-                        b.Append("      Assert.AreEqual<long>(" + retVal.ToString() + ", "
-                            + newValueName + ",\"Regression Failure? [" + this.timesReturnValRetrived.ToString() + "]\");\r\n");
-
-                        isPrimitive = true;
-                    }
-
-                    if (retVal.GetType() == typeof(float))
-                    {
-                        b.Append("      Assert.AreEqual<float>(" + retVal.ToString() + ", "
-                            + newValueName + ",\"Regression Failure? [" + this.timesReturnValRetrived.ToString() + "]\");\r\n");
-
-                        isPrimitive = true;
-                    }
-
-                    if (retVal.GetType() == typeof(double))
-                    {
-                        b.Append("      Assert.AreEqual<double>(" + retVal.ToString() + ", "
-                            + newValueName + ",\"Regression Failure? [" + this.timesReturnValRetrived.ToString() + "]\");\r\n");
-
-                        isPrimitive = true;
-                    }
-
-                    if (retVal.GetType() == typeof(char))
-                    {
-                        b.Append("      Assert.AreEqual<char>(" + retVal.ToString() + ", "
-                            + newValueName + ",\"Regression Failure? [" + this.timesReturnValRetrived.ToString() + "]\");\r\n");
-
-                        isPrimitive = true;
-                    }
-
-                    //else //CASE3
-                    if(! isPrimitive)
-                    {
-                        //b.Append("//Return value is not primitive. \r\n");
-                        b.Append("      Assert.IsNotNull(" + newValueName + ");\r\n");
-                    }
-
-                    return b.ToString();
-                }
-
-            } 
-            else //return value is null or execution throws exceptions
-            {
-                //CASE4
-                //b.Append("\r\n      //Regression assertion (captures the current behavior of the code): method" + this.method.Name + "\r\n");
-                //b.Append("      Assert.IsNull(" + newValueName + ",\"Regression Failure? [" + this.timesReturnValRetrived.ToString() + "]\");\r\n");
-                //return value is null, no newValueName is created
-
-                //CASE5 do nothing
-                return "";
-            }
-        }
-
         // arguments[0] is the receiver. if static method, arguments[0] ignored.
         //
         // TODO: This method can be largely improved. For one, it should
@@ -270,15 +162,15 @@ namespace Randoop
         // the method (regular method, operator, property, etc.).
         public override string ToCSharpCode(ReadOnlyCollection<string> arguments, String newValueName)
         {
-            StringBuilder b = new StringBuilder();
+            StringBuilder code = new StringBuilder();
             //return value
             string retType = method.ReturnType.ToString();
-            if (!method.ReturnType.Equals(typeof(void))) //if return value is null, no newValueName was given as input 
+            if (MethodIsVoid() == false)
             {
                 retType = SourceCodePrinting.ToCodeString(method.ReturnType);
-                b.Append(retType + " " + newValueName + " = ");
+                code.Append(retType + " " + newValueName + " = ");
             }
-            
+
             //for overloaded operators
             bool isOverloadedOp = false;
             string overloadOp = "";
@@ -307,20 +199,20 @@ namespace Randoop
                 {
                     isOverloadedOp = false;
                     isCastOp = false;
-                    b.Append(SourceCodePrinting.ToCodeString(method.DeclaringType));
-                    b.Append(".");
+                    code.Append(SourceCodePrinting.ToCodeString(method.DeclaringType));
+                    code.Append(".");
                 }
             }
             else
             {
                 Type methodDeclaringType = ParameterTypes[0];
 
-                b.Append("((");
-                b.Append(SourceCodePrinting.ToCodeString(methodDeclaringType));
-                b.Append(")");
-                b.Append(arguments[0]);
-                b.Append(")");
-                b.Append(".");
+                code.Append("((");
+                code.Append(SourceCodePrinting.ToCodeString(methodDeclaringType));
+                code.Append(")");
+                code.Append(arguments[0]);
+                code.Append(")");
+                code.Append(".");
 
             }
 
@@ -333,88 +225,12 @@ namespace Randoop
 
             if (method.IsSpecialName)
             {
-                string s = (method.Name);
-
-                bool isDefaultProperty = false;
-                foreach (MemberInfo mi in method.DeclaringType.GetDefaultMembers())
-                {
-                    if (!(mi is PropertyInfo))
-                        continue;
-
-                    PropertyInfo pi = mi as PropertyInfo;
-                    if (method.Equals(pi.GetGetMethod()))
-                    {
-                        isDefaultProperty = true;
-                        isGetItem = true;
-                        b.Remove(b.Length - 1, 1); // Remove the "." that was inserted above.
-                        b.Append("[");
-                    }
-                    else if (method.Equals(pi.GetSetMethod()))
-                    {
-                        isDefaultProperty = true;
-                        isSetItem = true;
-                        b.Remove(b.Length - 1, 1); // Remove the "." that was inserted above.
-                        b.Append("[");
-                    }
-                }
-
-                if (isDefaultProperty)
-                {
-                    // Already processed.
-                }
-                else if (s.StartsWith("get_ItemOf"))
-                {
-                    isItemOf = true;
-                    b.Remove(b.Length - 1, 1); // Remove the "." that was inserted above.
-                    b.Append("[");
-                }
-                //shuvendu: Important: replace get_Item with [] but get_ItemType with ItemType()
-                // The last clause is because some classes define an "Item" property
-                // that has no index.
-                else if (s.Equals("get_Item") && method.GetParameters().Length > 0)
-                {
-                    isGetItem = true;
-                    b.Remove(b.Length - 1, 1); // Remove the "." that was inserted above.
-                    b.Append("[");
-                }
-                // The last clause is because some classes define an "Item" property
-                // that has no index.
-                else if ((s.Equals("set_Item") || s.Equals("set_ItemOf")) && method.GetParameters().Length > 1)
-                {
-                    isSetItem = true;
-                    b.Remove(b.Length - 1, 1); // Remove the "." that was inserted above.
-                    b.Append("[");
-                }
-                else if ((s.StartsWith("get_")))
-                {
-                    s = s.Replace("get_", "");
-                    b.Append(s);
-                    //                        b.Append("(");
-                }
-                else if (s.StartsWith("set_"))
-                {
-                    s = s.Replace("set_", "");
-                    b.Append(s + " = ");
-                }
-                else if (isOverloadedOp)
-                {
-                    // Nothing to do here.
-                }
-                else if (isCastOp)
-                {
-                    // Nothing to do here.
-                }
-                else
-                {
-                    // Operator not handled in output generation.
-                }
-
-
+                HandleSpecialName(code, isOverloadedOp, isCastOp, ref isSetItem, ref isItemOf, ref isGetItem);
             }
             else
             {
-                b.Append(method.Name);
-                b.Append("(");
+                code.Append(method.Name);
+                code.Append("(");
             }
 
             //arguments tuples 
@@ -424,41 +240,41 @@ namespace Randoop
                 //we also need to remove the typename that comes with the static method
                 if (isOverloadedOp && i == 2)
                 {
-                    b.Append(overloadOp);
+                    code.Append(overloadOp);
                 }
                 else if (isCastOp && i == 1)
                 {
-                    b.Append(castOp);
+                    code.Append(castOp);
                 }
                 else if (isSetItem && i == arguments.Count - 1)
                 {
-                    b.Append("] = ");
+                    code.Append("] = ");
                 }
                 else
                 {
                     if (i > 1)
-                        b.Append(", ");
+                        code.Append(", ");
                 }
 
 
                 // Cast.
-                b.Append("(");
-                b.Append(SourceCodePrinting.ToCodeString(ParameterTypes[i]));
-                b.Append(")");
-                b.Append(arguments[i]);
+                code.Append("(");
+                code.Append(SourceCodePrinting.ToCodeString(ParameterTypes[i]));
+                code.Append(")");
+                code.Append(arguments[i]);
             }
 
             if (!method.IsSpecialName)
             {
-                b.Append(")");
+                code.Append(")");
             }
             else if (isGetItem || isChars || isItemOf)
             {
-                b.Append("]");
+                code.Append("]");
             }
-            b.Append(" ;");
+            code.Append(" ;");
 
-            #region regression assertion
+            #region assertion
             ////xiao.qu@us.abb.com adds for capture return value for regression assertion -- start////
             //CASE1 -- output-plan-only stage: the execution of the plan hasn't happen yet
             //CASE2 -- execution has happened: return value is "not null & primitive+string"
@@ -467,39 +283,130 @@ namespace Randoop
             //CASE5 -- execution has happened: execution fails, return value is "null"("RANDOOPFAIL")
 
             //CASE1
-            //if (this.timesReturnValRetrived >= this.ReturnValue.Count) //timesExecuted == ReturnValue.Count
-            if (this.timesReturnValRetrived >= this.timesExecuted)
+            //if (timesReturnValRetrived >= ReturnValue.Count) //timesExecuted == ReturnValue.Count
+            if (timesReturnValRetrieved >= timesExecuted)
             {
-                Logger.Debug(this.method.Name + "[" + this.timesReturnValRetrived.ToString()
+                Logger.Debug(method.Name + "[" + timesReturnValRetrieved.ToString()
                     + "+] didn't execute yet. Output-plan-only stage.");
 
-                return b.ToString(); //skip adding regression assertion
+                return code.ToString(); //skip adding regression assertion
             }
 
-            Logger.Debug(this.method.Name + "[" + this.timesReturnValRetrived.ToString()
+            Logger.Debug(method.Name + "[" + timesReturnValRetrieved.ToString()
                     + "] get-return-value stage.");
 
-            object tempval = this.ReturnValue[this.timesReturnValRetrived];  // timesReturnValRetrived == ReturnValue.Count - 1
+            object tempval = ReturnValue[timesReturnValRetrieved];  // timesReturnValRetrived == ReturnValue.Count - 1
 
             //b.Append("\t//" + retType + "?=" + tempval.GetType().ToString() + ";\n"); //for debug
 
-            string regressionAssert = GenRegressionAssertion(tempval,newValueName);
+            var assertion = new ContractAssertionGenerator(method).Compute(newValueName, arguments[0]);
+            if (string.IsNullOrEmpty(assertion))
+            {
+                assertion = new RegressionAssertionGenerator().GenerateRegressionAssertion(tempval, newValueName, timesReturnValRetrieved);
+            }
 
-            b.Append(regressionAssert);
+            code.Append(assertion);
 
-            this.timesReturnValRetrived++; 
+            timesReturnValRetrieved++;
 
             ////xiao.qu@us.abb.com adds for capture return value for regression assertion -- end////
-            #endregion regression assertion
+            #endregion assertion
 
-            return b.ToString();
-        }     
+            return code.ToString();
+        }
 
+
+
+
+
+        private void HandleSpecialName(StringBuilder code, bool isOverloadedOp, bool isCastOp, ref bool isSetItem, ref bool isItemOf, ref bool isGetItem)
+        {
+            string s = (method.Name);
+
+            bool isDefaultProperty = false;
+            foreach (MemberInfo mi in method.DeclaringType.GetDefaultMembers())
+            {
+                if (!(mi is PropertyInfo))
+                    continue;
+
+                PropertyInfo pi = mi as PropertyInfo;
+                if (method.Equals(pi.GetGetMethod()))
+                {
+                    isDefaultProperty = true;
+                    isGetItem = true;
+                    code.Remove(code.Length - 1, 1); // Remove the "." that was inserted above.
+                    code.Append("[");
+                }
+                else if (method.Equals(pi.GetSetMethod()))
+                {
+                    isDefaultProperty = true;
+                    isSetItem = true;
+                    code.Remove(code.Length - 1, 1); // Remove the "." that was inserted above.
+                    code.Append("[");
+                }
+            }
+
+            if (isDefaultProperty)
+            {
+                // Already processed.
+            }
+            else if (s.StartsWith("get_ItemOf"))
+            {
+                isItemOf = true;
+                code.Remove(code.Length - 1, 1); // Remove the "." that was inserted above.
+                code.Append("[");
+            }
+            //shuvendu: Important: replace get_Item with [] but get_ItemType with ItemType()
+            // The last clause is because some classes define an "Item" property
+            // that has no index.
+            else if (s.Equals("get_Item") && method.GetParameters().Length > 0)
+            {
+                isGetItem = true;
+                code.Remove(code.Length - 1, 1); // Remove the "." that was inserted above.
+                code.Append("[");
+            }
+            // The last clause is because some classes define an "Item" property
+            // that has no index.
+            else if ((s.Equals("set_Item") || s.Equals("set_ItemOf")) && method.GetParameters().Length > 1)
+            {
+                isSetItem = true;
+                code.Remove(code.Length - 1, 1); // Remove the "." that was inserted above.
+                code.Append("[");
+            }
+            else if ((s.StartsWith("get_")))
+            {
+                s = s.Replace("get_", "");
+                code.Append(s);
+                //                        b.Append("(");
+            }
+            else if (s.StartsWith("set_"))
+            {
+                s = s.Replace("set_", "");
+                code.Append(s + " = ");
+            }
+            else if (isOverloadedOp)
+            {
+                // Nothing to do here.
+            }
+            else if (isCastOp)
+            {
+                // Nothing to do here.
+            }
+            else
+            {
+                // Operator not handled in output generation.
+            }
+        }
+
+        private bool MethodIsVoid()
+        {
+            return method.ReturnType.Equals(typeof(void));
+        }
 
         public override bool Execute(out ResultTuple ret, ResultTuple[] parameters,
             Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out Exception exceptionThrown, out bool contractViolated, bool forbidNull)
         {
-            this.timesExecuted++;
+            timesExecuted++;
             long startTime = 0;
             Timer.QueryPerformanceCounter(ref startTime);
 
@@ -513,7 +420,7 @@ namespace Randoop
             }
 
             // FIXME This should be true! It currently isn't.
-            //if (!this.coverageInfo.methodInfo.IsStatic)
+            //if (!coverageInfo.methodInfo.IsStatic)
             //    Util.Assert(receiver != null);
 
             if (forbidNull)
@@ -525,22 +432,22 @@ namespace Randoop
             object returnValue = null;
             contractViolated = false; //default value of contract violation
 
-            call = delegate() { returnValue = method.Invoke(receiver, objects); };
+            call = delegate () { returnValue = method.Invoke(receiver, objects); };
 
 
             bool retval = true;
 
-            executionLog.WriteLine("execute method " + this.method.Name 
-                + "[" + (this.timesExecuted-1).ToString() + "]"); //xiao.qu@us.abb.com changes
-            Logger.Debug("execute method " + this.method.Name //xiao.qu@us.abb.com adds
-                + "[" + (this.timesExecuted - 1).ToString() + "]");
+            executionLog.WriteLine("execute method " + method.Name
+                + "[" + (timesExecuted - 1).ToString() + "]"); //xiao.qu@us.abb.com changes
+            Logger.Debug("execute method " + method.Name //xiao.qu@us.abb.com adds
+                + "[" + (timesExecuted - 1).ToString() + "]");
 
             executionLog.Flush();
 
-            //if (this.timesExecuted != this.ReturnValue.Count + 1) //xiao.qu@us.abb.com adds for debug
+            //if (timesExecuted != ReturnValue.Count + 1) //xiao.qu@us.abb.com adds for debug
             //{
-            //    Logger.Debug("timeExecute = " + this.timesExecuted.ToString() +
-            //        " but ReturnValue is " + this.ReturnValue.Count.ToString());
+            //    Logger.Debug("timeExecute = " + timesExecuted.ToString() +
+            //        " but ReturnValue is " + ReturnValue.Count.ToString());
             //}
 
             if (!CodeExecutor.ExecuteReflectionCall(call, debugLog, out exceptionThrown))
@@ -551,7 +458,7 @@ namespace Randoop
 
                     PlanManager.numDistinctContractViolPlans++;
 
-                    KeyValuePair<MethodBase, Type> k = new KeyValuePair<MethodBase, Type>(this.method, exceptionThrown.GetType());
+                    KeyValuePair<MethodBase, Type> k = new KeyValuePair<MethodBase, Type>(method, exceptionThrown.GetType());
                     if (!exnViolatingMethods.ContainsKey(k))
                     {
                         PlanManager.numContractViolatingPlans++;
@@ -564,11 +471,11 @@ namespace Randoop
                 }
 
                 ret = null;
-                executionLog.WriteLine("return value [" + (this.timesExecuted-1).ToString() 
+                executionLog.WriteLine("return value [" + (timesExecuted - 1).ToString()
                     + "]: invocationOk is false.");//xiao.qu@us.abb.com adds
 
                 //string temp = "RANDOOPFAIL"; //xiao.qu@us.abb.com adds for capture current status
-                this.ReturnValue.Add(null); //xiao.qu@us.abb.com adds for capture current status
+                ReturnValue.Add(null); //xiao.qu@us.abb.com adds for capture current status
 
                 return false;
             }
@@ -578,9 +485,9 @@ namespace Randoop
 
                 #region caputre latest execution return value
                 ////xiao.qu@us.abb.com adds to capture return value -- start////
-                if (returnValue != null) 
+                if (returnValue != null)
                 {
-                    if((returnValue.GetType() == typeof(System.String)) 
+                    if ((returnValue.GetType() == typeof(System.String))
                         || (returnValue.GetType() == typeof(System.Boolean))
                         || (returnValue.GetType() == typeof(byte))
                         || (returnValue.GetType() == typeof(short))
@@ -589,28 +496,28 @@ namespace Randoop
                         || (returnValue.GetType() == typeof(float))
                         || (returnValue.GetType() == typeof(double))
                         || (returnValue.GetType() == typeof(char)))
-                        executionLog.WriteLine("return value [" + (this.timesExecuted-1).ToString() + "]: " 
+                        executionLog.WriteLine("return value [" + (timesExecuted - 1).ToString() + "]: "
                         + returnValue.ToString().Replace("\n", "\\n").Replace("\r", "\\r"));
                     else
-                        executionLog.WriteLine("return value [" + (this.timesExecuted-1).ToString() + "]: not string or primitive");
+                        executionLog.WriteLine("return value [" + (timesExecuted - 1).ToString() + "]: not string or primitive");
 
                     //doulbe check to make sure there is no non-deterministic exeuction -- we don't want to regression assertion with that
                     //This is not a sufficient approach because the difference may be inherited from previous constructors or method calls
                     //What was done in Randoop(java): after generating an "entire" test suite, Randoop runs it before outputting it. 
                     //If any test fails, Randoop disables each failing assertions.
                     //let the VS plug-in do this functionality
-                    if (Execute2(returnValue,objects,receiver,executionLog,debugLog))
-                        this.ReturnValue.Add(returnValue);
+                    if (Execute2(returnValue, objects, receiver, executionLog, debugLog))
+                        ReturnValue.Add(returnValue);
                     else
-                        this.ReturnValue.Add(null);
+                        ReturnValue.Add(null);
                 }
                 else
                 {
-                    executionLog.WriteLine("return value [" + (this.timesExecuted-1).ToString()
-                        +"]: no return value");
+                    executionLog.WriteLine("return value [" + (timesExecuted - 1).ToString()
+                        + "]: no return value");
 
-                    this.ReturnValue.Add(null);
-                 }
+                    ReturnValue.Add(null);
+                }
                 ////xiao.qu@us.abb.com adds to capture return value -- end////
                 #endregion caputre latest execution return value
             }
@@ -618,53 +525,7 @@ namespace Randoop
             //check if the objects in the output tuple violated basic contracts
             if (ret != null)
             {
-                foreach (object o in ret.tuple)
-                {
-                    if (o == null) continue;
-
-                    bool toStrViol, hashCodeViol, equalsViol;
-                    int count;
-                    if (Util.ViolatesContracts(o, out count, out toStrViol, out hashCodeViol, out equalsViol))
-                    {
-                        contractViolated = true;
-                        contractExnViolatingMethods[method] = true;
-
-                        PlanManager.numDistinctContractViolPlans++;
-
-                        bool newcontractViolation = false;
-
-                        if (toStrViol)
-                        {
-
-                            if (!toStrViolatingMethods.ContainsKey(method))
-                                newcontractViolation = true;
-                            toStrViolatingMethods[method] = true;
-                        }
-                        if (hashCodeViol)
-                        {
-                            if (!hashCodeViolatingMethods.ContainsKey(method))
-                                newcontractViolation = true;
-
-                            hashCodeViolatingMethods[method] = true;
-                        }
-                        if (equalsViol)
-                        {
-                            if (!equalsViolatingMethods.ContainsKey(method))
-                                newcontractViolation = true;
-
-                            equalsViolatingMethods[method] = true;
-                        }
-
-                        if (newcontractViolation)
-                            PlanManager.numContractViolatingPlans++;
-
-                        //add this class to the faulty classes
-                        contractExnViolatingClasses[method.DeclaringType] = true;
-
-                        retval = false;
-                    }
-
-                }
+                CheckContracts(ret, ref contractViolated, ref retval);
             }
 
             if (contractViolated)  //xiao.qu@us.abb.com adds
@@ -677,6 +538,55 @@ namespace Randoop
             return retval;
         }
 
+        private void CheckContracts(ResultTuple ret, ref bool contractViolated, ref bool retval)
+        {
+            foreach (object o in ret.tuple)
+            {
+                if (o == null) continue;
+
+                bool toStrViol, hashCodeViol, equalsViol;
+                int count;
+                if (Util.ViolatesContracts(o, out count, out toStrViol, out hashCodeViol, out equalsViol))
+                {
+                    contractViolated = true;
+                    contractExnViolatingMethods[method] = true;
+
+                    PlanManager.numDistinctContractViolPlans++;
+
+                    bool newcontractViolation = false;
+
+                    if (toStrViol)
+                    {
+
+                        if (!toStrViolatingMethods.ContainsKey(method))
+                            newcontractViolation = true;
+                        toStrViolatingMethods[method] = true;
+                    }
+                    if (hashCodeViol)
+                    {
+                        if (!hashCodeViolatingMethods.ContainsKey(method))
+                            newcontractViolation = true;
+
+                        hashCodeViolatingMethods[method] = true;
+                    }
+                    if (equalsViol)
+                    {
+                        if (!equalsViolatingMethods.ContainsKey(method))
+                            newcontractViolation = true;
+
+                        equalsViolatingMethods[method] = true;
+                    }
+
+                    if (newcontractViolation)
+                        PlanManager.numContractViolatingPlans++;
+
+                    //add this class to the faulty classes
+                    contractExnViolatingClasses[method.DeclaringType] = true;
+
+                    retval = false;
+                }
+            }
+        }
 
         public bool Execute2(object retValOldRun, object[] objectsOld, object receiverOld,
             TextWriter executionLog, TextWriter debugLog)
@@ -689,7 +599,7 @@ namespace Randoop
             //    Plan.ParameterChooser pair = parameterMap[i + 1];
             //    objects[i] = parameters[pair.planIndex].tuple[pair.resultIndex];
             //}
-          
+
             //if (forbidNull)
             //    foreach (object o in objects)
             //        Util.Assert(o != null);
@@ -703,17 +613,17 @@ namespace Randoop
 
             object returnValue = null;
 
-            call = delegate() { returnValue = method.Invoke(receiver, objects); };
+            call = delegate () { returnValue = method.Invoke(receiver, objects); };
 
             //bool retval = true;
 
-            executionLog.WriteLine("execute method " + this.method.Name
-                + "[" + (this.timesExecuted - 1).ToString() + "] the second time"); 
-            Logger.Debug("execute method " + this.method.Name 
-                + "[" + (this.timesExecuted - 1).ToString() + "] the second time");
+            executionLog.WriteLine("execute method " + method.Name
+                + "[" + (timesExecuted - 1).ToString() + "] the second time");
+            Logger.Debug("execute method " + method.Name
+                + "[" + (timesExecuted - 1).ToString() + "] the second time");
 
             executionLog.Flush();
-                       
+
 
             if (!CodeExecutor.ExecuteReflectionCall(call, debugLog, out exceptionThrown))
             {
@@ -723,7 +633,7 @@ namespace Randoop
 
                 //    PlanManager.numDistinctContractViolPlans++;
 
-                //    KeyValuePair<MethodBase, Type> k = new KeyValuePair<MethodBase, Type>(this.method, exceptionThrown.GetType());
+                //    KeyValuePair<MethodBase, Type> k = new KeyValuePair<MethodBase, Type>(method, exceptionThrown.GetType());
                 //    if (!exnViolatingMethods.ContainsKey(k))
                 //    {
                 //        PlanManager.numContractViolatingPlans++;
@@ -736,10 +646,10 @@ namespace Randoop
                 //}
 
                 ret = null;
-                executionLog.WriteLine("return value [" + (this.timesExecuted - 1).ToString()
+                executionLog.WriteLine("return value [" + (timesExecuted - 1).ToString()
                     + "]: invocationOk is false the sceond time --- shouldn't happen?");
 
-                //this.ReturnValue.Add(null); 
+                //ReturnValue.Add(null); 
 
                 return false;
             }
@@ -750,21 +660,21 @@ namespace Randoop
                 ////xiao.qu@us.abb.com adds to capture return value -- start////
                 if (returnValue != null)
                 {
-                   if((returnValue.GetType() == typeof(System.String)) 
-                        || (returnValue.GetType() == typeof(System.Boolean))
-                        || (returnValue.GetType() == typeof(byte))
-                        || (returnValue.GetType() == typeof(short))
-                        || (returnValue.GetType() == typeof(int))
-                        || (returnValue.GetType() == typeof(long))
-                        || (returnValue.GetType() == typeof(float))
-                        || (returnValue.GetType() == typeof(double))
-                        || (returnValue.GetType() == typeof(char)))                       
-                            executionLog.WriteLine("return value [" + (this.timesExecuted - 1).ToString() + "] the second time: "
-                        + returnValue.ToString().Replace("\n", "\\n").Replace("\r", "\\r"));
+                    if ((returnValue.GetType() == typeof(System.String))
+                         || (returnValue.GetType() == typeof(System.Boolean))
+                         || (returnValue.GetType() == typeof(byte))
+                         || (returnValue.GetType() == typeof(short))
+                         || (returnValue.GetType() == typeof(int))
+                         || (returnValue.GetType() == typeof(long))
+                         || (returnValue.GetType() == typeof(float))
+                         || (returnValue.GetType() == typeof(double))
+                         || (returnValue.GetType() == typeof(char)))
+                        executionLog.WriteLine("return value [" + (timesExecuted - 1).ToString() + "] the second time: "
+                    + returnValue.ToString().Replace("\n", "\\n").Replace("\r", "\\r"));
                     else
-                        executionLog.WriteLine("return value [" + (this.timesExecuted - 1).ToString() + "] the second time: not primitive or string");
+                        executionLog.WriteLine("return value [" + (timesExecuted - 1).ToString() + "] the second time: not primitive or string");
 
-                    //this.ReturnValue.Add(returnValue);
+                    //ReturnValue.Add(returnValue);
                     Type typeOfReturnVal = returnValue.GetType();
                     if (typeOfReturnVal == typeof(bool) || typeOfReturnVal == typeof(byte) || typeOfReturnVal == typeof(short)
                         || typeOfReturnVal == typeof(int) || typeOfReturnVal == typeof(long) || typeOfReturnVal == typeof(float)
@@ -781,10 +691,10 @@ namespace Randoop
                 }
                 else
                 {
-                    executionLog.WriteLine("return value [" + (this.timesExecuted - 1).ToString()
+                    executionLog.WriteLine("return value [" + (timesExecuted - 1).ToString()
                         + "]: no return value the second time -- shouldn't happen?");
 
-                    //this.ReturnValue.Add(null);
+                    //ReturnValue.Add(null);
                     return false;
                 }
                 ////xiao.qu@us.abb.com adds to capture return value -- end////
@@ -847,12 +757,12 @@ namespace Randoop
 
             //return retval;
         }
-        
+
         public override string Namespace
         {
             get
             {
-                return this.method.DeclaringType.Namespace;
+                return method.DeclaringType.Namespace;
             }
         }
 
@@ -860,7 +770,7 @@ namespace Randoop
         {
             get
             {
-                return ReflectionUtils.GetRelatedAssemblies(this.method);
+                return ReflectionUtils.GetRelatedAssemblies(method);
             }
         }
     }
