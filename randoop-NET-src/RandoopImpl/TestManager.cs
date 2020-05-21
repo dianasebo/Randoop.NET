@@ -63,13 +63,13 @@ namespace Randoop
 
             if (config.singledir)
             {
-                testFileWriter = new SingleDirTestWriter(new DirectoryInfo(config.outputdir), config.testPrefix);
+                testFileWriter = new SingleDirTestWriter(new DirectoryInfo(config.outputdir));
             }
             else
             {
                 DirectoryInfo outputDir = new DirectoryInfo(config.outputdir);
 
-                testFileWriter = new ClassifyingTestFileWriter(outputDir, config.testPrefix);
+                testFileWriter = new ClassifyingTestFileWriter(outputDir);
             }
 
         }

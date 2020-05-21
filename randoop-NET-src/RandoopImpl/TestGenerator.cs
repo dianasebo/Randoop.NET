@@ -667,6 +667,7 @@ namespace Randoop
 
             Plan plan = new Plan(MethodCall.Get(method),
                 randomPlansResult.fplans, randomPlansResult.fparameterChoosers);
+            plan.ClassName = method.DeclaringType.Name;
 
             planManager.AddMaybeExecutingIfNeeded(plan, stats);
         }
@@ -714,6 +715,7 @@ namespace Randoop
             }
             Plan plan = new Plan(ConstructorCallTransformer.Get(constructor),
                 r.fplans, r.fparameterChoosers);
+            plan.ClassName = constructor.DeclaringType.Name;
 
             planManager.AddMaybeExecutingIfNeeded(plan, this.stats);
         }
@@ -750,6 +752,7 @@ namespace Randoop
 
             Plan plan = new Plan(FieldSettingTransformer.Get(field),
                 r.fplans, r.fparameterChoosers);
+            plan.ClassName = field.DeclaringType.Name;
             planManager.AddMaybeExecutingIfNeeded(plan, this.stats);
         }
 

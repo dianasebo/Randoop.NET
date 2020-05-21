@@ -55,24 +55,18 @@ namespace Randoop
     {
         private DirectoryInfo outputDir;
 
-        private string testPrefix;
-
-        public SingleDirTestWriter(DirectoryInfo di, string testPrefix)
+        public SingleDirTestWriter(DirectoryInfo di)
         {
             outputDir = di;
             if (!outputDir.Exists)
             {
                 outputDir.Create();
             }
-            if (testPrefix == null)
-                this.testPrefix = "RandoopTest";
-            else
-                this.testPrefix = testPrefix;
         }
 
         public void Move(Plan p, Exception exceptionThrown)
         {
-            string className = this.testPrefix + p.TestCaseId;
+            string className = p.ClassName + p.TestCaseId;
             string fileName = outputDir + "\\" + className + ".cs";
 
             string savedFileName = fileName + ".saved";
@@ -89,14 +83,14 @@ namespace Randoop
 
         public void Remove(Plan plan)
         {
-            string className = testPrefix + plan.TestCaseId;
+            string className = plan.ClassName + plan.TestCaseId;
             string fileName = outputDir + "\\" + className + ".cs";
             new FileInfo(fileName).Delete();
         }
 
         public void WriteTest(Plan plan)
         {
-            string className = testPrefix + plan.TestCaseId;
+            string className = plan.ClassName + plan.TestCaseId;
             string fileName = outputDir + "\\" + className + ".cs";
             TestWriterHelperMethods.WritePlanToFile(plan, fileName, null, className);
         }
@@ -117,20 +111,13 @@ namespace Randoop
 
         private DirectoryInfo normalTerminationCurrentDir;
 
-        private string testPrefix;
-
-        public ClassifyingTestFileWriter(DirectoryInfo di, string testPrefix)
+        public ClassifyingTestFileWriter(DirectoryInfo di)
         {
-            this.outputDir = di;
-            this.numNormalTerminationPlansWritten = 0;
+            outputDir = di;
+            numNormalTerminationPlansWritten = 0;
             DirectoryInfo tempDir = new DirectoryInfo(outputDir + "\\temp");
             Logger.Debug("Creating directory: " + tempDir.FullName);
             tempDir.Create();
-
-            if (testPrefix == null)
-                this.testPrefix = "RandoopTest";
-            else
-                this.testPrefix = testPrefix;
         }
 
         private void newSubDir()
@@ -143,21 +130,21 @@ namespace Randoop
                 if (dirIndex > maxIndex)
                     maxIndex = dirIndex;
             }
-            this.normalTerminationCurrentDir = new DirectoryInfo(
+            normalTerminationCurrentDir = new DirectoryInfo(
                 outputDir
                 + "\\"
                 + "normaltermination"
                 + (maxIndex + 1));
-            Util.Assert(!this.normalTerminationCurrentDir.Exists);
-            this.normalTerminationCurrentDir.Create();
+            Util.Assert(!normalTerminationCurrentDir.Exists);
+            normalTerminationCurrentDir.Create();
         }
 
 
         public void WriteTest(Plan p)
         {
-            string className = this.testPrefix + p.TestCaseId;
-            string fileName = outputDir + "\\" + "temp" + "\\" + className + ".cs";
-            TestWriterHelperMethods.WritePlanToFile(p, fileName, null, className);
+            string testClassName = p.ClassName + p.TestCaseId;
+            string fileName = outputDir + "\\" + "temp" + "\\" + testClassName + ".cs";
+            TestWriterHelperMethods.WritePlanToFile(p, fileName, null, testClassName);
         }
 
         public void MoveNormalTermination(Plan p)
@@ -165,10 +152,10 @@ namespace Randoop
             if (numNormalTerminationPlansWritten % 1000 == 0)
                 newSubDir();
 
-            string className = this.testPrefix + p.TestCaseId;
-            string oldTestFileName = outputDir + "\\" + "temp" + "\\" + className + ".cs";
-            string newTestFileName = normalTerminationCurrentDir + "\\" + className + ".cs";
-            TestWriterHelperMethods.WritePlanToFile(p, newTestFileName, null, className);
+            string testClassName = p.ClassName + p.TestCaseId;
+            string oldTestFileName = outputDir + "\\" + "temp" + "\\" + testClassName + ".cs";
+            string newTestFileName = normalTerminationCurrentDir + "\\" + testClassName + ".cs";
+            TestWriterHelperMethods.WritePlanToFile(p, newTestFileName, null, testClassName);
             new FileInfo(oldTestFileName).Delete();
             numNormalTerminationPlansWritten++;
         }
@@ -177,10 +164,10 @@ namespace Randoop
         {
             string dirName;
             MakeExceptionDirIfNotExists(exceptionThrown, out dirName);
-            string className = this.testPrefix + p.TestCaseId;
-            string oldTestFileName = outputDir + "\\" + "temp" + "\\" + className + ".cs";
-            string newTestFileName = dirName + "\\" + className + ".cs";
-            TestWriterHelperMethods.WritePlanToFile(p, newTestFileName, exceptionThrown.GetType(), className);
+            string testClassName = p.ClassName + p.TestCaseId;
+            string oldTestFileName = outputDir + "\\" + "temp" + "\\" + testClassName + ".cs";
+            string newTestFileName = dirName + "\\" + testClassName + ".cs";
+            TestWriterHelperMethods.WritePlanToFile(p, newTestFileName, exceptionThrown.GetType(), testClassName);
             new FileInfo(oldTestFileName).Delete();
         }
 
@@ -203,8 +190,8 @@ namespace Randoop
 
         public void Remove(Plan p)
         {
-            string className = this.testPrefix + p.TestCaseId;
-            string oldTestFileName = outputDir + "\\" + "temp" + "\\" + className + ".cs";
+            string testClassName = p.ClassName + p.TestCaseId;
+            string oldTestFileName = outputDir + "\\" + "temp" + "\\" + testClassName + ".cs";
             new FileInfo(oldTestFileName).Delete();
         }
 

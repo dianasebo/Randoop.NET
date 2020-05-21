@@ -75,6 +75,8 @@ namespace Randoop
 
         public Exception exceptionThrown = null;
 
+        public string ClassName { get; set; }
+
         private readonly bool[] activeTupleElements;
 
         private readonly ResultElementExecutionProperties[] resultElementProperties;
@@ -132,14 +134,14 @@ namespace Randoop
         public void SetActiveTupleElement(int i, bool value)
         {
             Util.Assert(i >= 0 && i < activeTupleElements.Length);
-            Util.Assert(((this.transformer is ConstructorCallTransformer) ? i != 0 : true));
+            Util.Assert(transformer is ConstructorCallTransformer ? i != 0 : true);
             activeTupleElements[i] = value;
         }
 
         public void SetResultElementProperty(int i, ResultElementExecutionProperties value)
         {
             Util.Assert(i >= 0 && i < resultElementProperties.Length);
-            Util.Assert(((this.transformer is ConstructorCallTransformer) ? i != 0 : true));
+            Util.Assert(transformer is ConstructorCallTransformer ? i != 0 : true);
             resultElementProperties[i] = value;
         }
 
@@ -150,7 +152,7 @@ namespace Randoop
         {
             get
             {
-                return executionTimeAccum / ((double)numTimesExecuted);
+                return executionTimeAccum / numTimesExecuted;
             }
 
         }
@@ -198,17 +200,17 @@ namespace Randoop
             if (this == obj)
                 return true;
 
-            if (!this.transformer.Equals(o.transformer))
+            if (!transformer.Equals(o.transformer))
                 return false;
-            if (this.parentPlans.Length != o.parentPlans.Length)
+            if (parentPlans.Length != o.parentPlans.Length)
                 return false;
             for (int i = 0; i < parentPlans.Length; i++)
-                if (!this.parentPlans[i].Equals(o.parentPlans[i]))
+                if (!parentPlans[i].Equals(o.parentPlans[i]))
                     return false;
-            if (this.parameterChoosers.Length != o.parameterChoosers.Length)
+            if (parameterChoosers.Length != o.parameterChoosers.Length)
                 return false;
             for (int i = 0; i < parameterChoosers.Length; i++)
-                if (!this.parameterChoosers[i].Equals(o.parameterChoosers[i]))
+                if (!parameterChoosers[i].Equals(o.parameterChoosers[i]))
                     return false;
             return true;
         }
@@ -259,7 +261,7 @@ namespace Randoop
                 ParameterChooser c = obj as ParameterChooser;
                 if (c == null)
                     return false;
-                return (this.planIndex == c.planIndex && this.resultIndex == c.resultIndex);
+                return (planIndex == c.planIndex && resultIndex == c.resultIndex);
             }
 
             public override int GetHashCode()
@@ -419,12 +421,7 @@ namespace Randoop
             return true;
         }
 
-        private void AppendOmitMethodsFile()
-        {
-            //StreamWriter w = File.AppendText("omitmethods.txt");
-        }
-
-        public String ToStringAsCSharpCode()
+        public string ToStringAsCSharpCode()
         {
             StringBuilder b = new StringBuilder();
             foreach (string codeLine in CodeGenerator.AsCSharpCode(this))
@@ -451,7 +448,7 @@ namespace Randoop
             if (printPlanToString)
             {
                 testCode.Add("/*");
-                testCode.Add(this.ToString());
+                testCode.Add(ToString());
                 testCode.Add("*/");
             }
 
@@ -477,7 +474,7 @@ namespace Randoop
             //    + this.transformer.ToString() //xiao.qu@us.abb.com changes for capture last return value
             //    + " type: " + last_ret_type
             //    + " val: " + last_ret_val);
-            + this.transformer.ToString());
+            + transformer.ToString());
 
             // Create exception.
             TestCase.ExceptionDescription exception;
@@ -493,7 +490,7 @@ namespace Randoop
         private Collection<string> GetNameSpaces()
         {
             CollectReferencedAssembliesVisitor v = new CollectReferencedAssembliesVisitor();
-            this.Visit(v);
+            Visit(v);
             Collection<string> ret = new Collection<string>();
             foreach (string t in v.GetDeclaringTypes())
                 ret.Add(t);
@@ -503,7 +500,7 @@ namespace Randoop
         private Collection<string> GetAssemblies()
         {
             CollectReferencedAssembliesVisitor v = new CollectReferencedAssembliesVisitor();
-            this.Visit(v);
+            Visit(v);
             Collection<string> ret = new Collection<string>();
             foreach (string t in v.GetAssemblies())
                 ret.Add(t);
@@ -516,9 +513,9 @@ namespace Randoop
             long endTime = 0;
             Timer.QueryPerformanceCounter(ref endTime);
 
-            double executionTime = ((double)(endTime - startTime)) / ((double)(Timer.PerfTimerFrequency));
+            double executionTime = (endTime - startTime) / ((double)Timer.PerfTimerFrequency);
 
-            this.executionTimeAccum += executionTime;
+            executionTimeAccum += executionTime;
 
         }
 
@@ -526,7 +523,7 @@ namespace Randoop
 
         public double Weight()
         {
-            return 1.0 / (1.0 + (double)this.treenodes);
+            return 1.0 / (1.0 + treenodes);
         }
 
         #endregion
@@ -536,8 +533,8 @@ namespace Randoop
         public void Visit(IVisitor a)
         {
             a.Accept(this);
-            a.Accept(this.transformer);
-            foreach (Plan pp in this.parentPlans)
+            a.Accept(transformer);
+            foreach (Plan pp in parentPlans)
                 pp.Visit(a);
         }
     }
@@ -552,10 +549,8 @@ namespace Randoop
     {
         public readonly object[] tuple;
 
-        public ResultTuple(FieldInfo field, object receiver)
+        public ResultTuple(object receiver)
         {
-            //Util.Assert(receiver != null && field.DeclaringType.IsInstanceOfType(receiver));
-
             tuple = new object[1];
             tuple[0] = receiver;
         }

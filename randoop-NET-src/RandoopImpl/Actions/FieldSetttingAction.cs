@@ -149,7 +149,7 @@ namespace Randoop
                 return false;
             }
 
-            ret = new ResultTuple(ffield, receiver);
+            ret = new ResultTuple(receiver);
             return true;
         }
 
