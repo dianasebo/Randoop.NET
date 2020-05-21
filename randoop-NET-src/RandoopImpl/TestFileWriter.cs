@@ -19,10 +19,10 @@ namespace Randoop
 
     public interface ITestFileWriter
     {
-        void Move(Randoop.Plan p, Exception exceptionThrown);
-        void MoveNormalTermination(Randoop.Plan p);
-        void Remove(Randoop.Plan p);
-        void WriteTest(Randoop.Plan p);
+        void Move(Plan p, Exception exceptionThrown);
+        void MoveNormalTermination(Plan p);
+        void Remove(Plan p);
+        void WriteTest(Plan p);
         void RemoveTempDir();
     }
 
@@ -59,10 +59,10 @@ namespace Randoop
 
         public SingleDirTestWriter(DirectoryInfo di, string testPrefix)
         {
-            this.outputDir = di;
-            if (!this.outputDir.Exists)
+            outputDir = di;
+            if (!outputDir.Exists)
             {
-                this.outputDir.Create();
+                outputDir.Create();
             }
             if (testPrefix == null)
                 this.testPrefix = "RandoopTest";
@@ -70,7 +70,7 @@ namespace Randoop
                 this.testPrefix = testPrefix;
         }
 
-        public void Move(Randoop.Plan p, Exception exceptionThrown)
+        public void Move(Plan p, Exception exceptionThrown)
         {
             string className = this.testPrefix + p.TestCaseId;
             string fileName = outputDir + "\\" + className + ".cs";
@@ -82,23 +82,23 @@ namespace Randoop
             new FileInfo(savedFileName).Delete();
         }
 
-        public void MoveNormalTermination(Randoop.Plan p)
+        public void MoveNormalTermination(Plan p)
         {
             // Don't move anywhere.
         }
 
-        public void Remove(Randoop.Plan p)
+        public void Remove(Plan plan)
         {
-            string className = this.testPrefix + p.TestCaseId;
+            string className = testPrefix + plan.TestCaseId;
             string fileName = outputDir + "\\" + className + ".cs";
             new FileInfo(fileName).Delete();
         }
 
-        public void WriteTest(Randoop.Plan p)
+        public void WriteTest(Plan plan)
         {
-            string className = this.testPrefix + p.TestCaseId;
+            string className = testPrefix + plan.TestCaseId;
             string fileName = outputDir + "\\" + className + ".cs";
-            TestWriterHelperMethods.WritePlanToFile(p, fileName, null, className);
+            TestWriterHelperMethods.WritePlanToFile(plan, fileName, null, className);
         }
 
         public void RemoveTempDir()

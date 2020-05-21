@@ -11,11 +11,14 @@
 
 
 
+using CodingSeb.ExpressionEvaluator;
 using Common;
+using RandoopContracts;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -160,14 +163,13 @@ namespace Randoop
         // TODO: This method can be largely improved. For one, it should
         // be broken up into smaller methods depending on the nature of
         // the method (regular method, operator, property, etc.).
-        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, String newValueName)
+        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName)
         {
             StringBuilder code = new StringBuilder();
             //return value
-            string retType = method.ReturnType.ToString();
             if (MethodIsVoid() == false)
             {
-                retType = SourceCodePrinting.ToCodeString(method.ReturnType);
+                string retType = SourceCodePrinting.ToCodeString(method.ReturnType);
                 code.Append(retType + " " + newValueName + " = ");
             }
 
@@ -404,7 +406,7 @@ namespace Randoop
         }
 
         public override bool Execute(out ResultTuple ret, ResultTuple[] parameters,
-            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out Exception exceptionThrown, out bool contractViolated, bool forbidNull)
+            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull)
         {
             timesExecuted++;
             long startTime = 0;
@@ -419,9 +421,18 @@ namespace Randoop
                 objects[i] = parameters[pair.planIndex].tuple[pair.resultIndex];
             }
 
-            // FIXME This should be true! It currently isn't.
-            //if (!coverageInfo.methodInfo.IsStatic)
-            //    Util.Assert(receiver != null);
+            if (PreconditionViolated(method, objects))
+            {
+                ret = null;
+                exceptionThrown = null;
+                contractViolated = false;
+                preconditionViolated = true;
+                return false;
+            }
+            else
+            {
+                preconditionViolated = false;
+            }
 
             if (forbidNull)
                 foreach (object o in objects)
@@ -536,6 +547,23 @@ namespace Randoop
             executionTimeAccum += ((double)(endTime - startTime)) / ((double)(Timer.PerfTimerFrequency));
 
             return retval;
+        }
+
+        private bool PreconditionViolated(MethodInfo method, object[] objects)
+        {
+            var methodParameters = method.GetParameters();
+            var precondition = method.GetCustomAttribute(typeof(Precondition)) as Precondition;
+            var computedExpression = precondition.Expression;
+            for (int index = 0; index < methodParameters.Length; index++)
+            {
+                if (precondition.Parameters.Contains(methodParameters[index].Name))
+                {
+                    var argument = objects[index].ToString();
+                    computedExpression = computedExpression.Replace(methodParameters[index].Name, argument);
+                }
+            }
+
+            return new ExpressionEvaluator().Evaluate<bool>(computedExpression) == false;
         }
 
         private void CheckContracts(ResultTuple ret, ref bool contractViolated, ref bool retval)

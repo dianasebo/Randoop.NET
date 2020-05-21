@@ -55,23 +55,23 @@ namespace Randoop
         public PlanManager(RandoopConfiguration config)
         {
             this.config = config;
-            this.builderPlans = new PlanDataBase("builderPlans", config.typematchingmode);
-            this.exceptionPlans = new PlanDataBase("exceptionThrowingPlans", config.typematchingmode);
-            this.observerPlans = new PlanDataBase("observerPlans", config.typematchingmode);
+            builderPlans = new PlanDataBase("builderPlans", config.typematchingmode);
+            exceptionPlans = new PlanDataBase("exceptionThrowingPlans", config.typematchingmode);
+            observerPlans = new PlanDataBase("observerPlans", config.typematchingmode);
 
             Plan.uniqueIdCounter = config.planstartid;
 
             if (config.singledir)
             {
-                this.testFileWriter = new SingleDirTestWriter(new DirectoryInfo(config.outputdir), config.testPrefix);
+                testFileWriter = new SingleDirTestWriter(new DirectoryInfo(config.outputdir), config.testPrefix);
             }
             else
             {
                 DirectoryInfo outputDir = new DirectoryInfo(config.outputdir);
 
-                this.testFileWriter = new ClassifyingTestFileWriter(outputDir, config.testPrefix);
-            }    
-          
+                testFileWriter = new ClassifyingTestFileWriter(outputDir, config.testPrefix);
+            }
+
         }
 
         /// <summary>
@@ -79,19 +79,14 @@ namespace Randoop
         /// by executing the plan to determine if it throws exceptions.
         /// </summary>
         /// <param name="v"></param>
-        public void AddMaybeExecutingIfNeeded(Plan p, StatsManager stats)
+        public void AddMaybeExecutingIfNeeded(Plan plan, StatsManager stats)
         {
-
-            //foreach (string s in p.Codestring)
-            //    Logger.Debug(s);
-
-
-            if (builderPlans.Containsplan(p))
+            if (builderPlans.Containsplan(plan))
             {
                 redundantAdds++;
                 stats.CreatedNew(CreationResult.Redundant);
             }
-            else if (exceptionPlans.Containsplan(p))
+            else if (exceptionPlans.Containsplan(plan))
             {
                 redundantAdds++;
                 stats.CreatedNew(CreationResult.Redundant);
@@ -102,7 +97,6 @@ namespace Randoop
                 if (addCounter % 1000 == 0)
                 {
                     Console.Write(".");
-                    PrintPercentageExecuted();
                 }
 
                 stats.CreatedNew(CreationResult.New);
@@ -115,12 +109,13 @@ namespace Randoop
 
                 Exception exceptionThrown;
                 bool contractViolated;
+                bool preconditionViolated;
 
-                this.testFileWriter.WriteTest(p);
+                testFileWriter.WriteTest(plan);
 
                 if (config.executionmode == ExecutionMode.DontExecute)
                 {
-                    builderPlans.AddPlan(p);
+                    builderPlans.AddPlan(plan);
                     stats.ExecutionResult("normal");
                 }
                 else
@@ -128,58 +123,55 @@ namespace Randoop
                     Util.Assert(config.executionmode == ExecutionMode.Reflection);
 
                     //TextWriter executionLog = new StreamWriter(config.executionLog);
-                    TextWriter executionLog = new StreamWriter(config.executionLog+addCounter.ToString()+".log"); //xiao.qu@us.abb.com changes
-                    executionLog.WriteLine("LASTPLANID:" + p.uniqueId);
+                    TextWriter executionLog = new StreamWriter(config.executionLog + addCounter.ToString() + ".log"); //xiao.qu@us.abb.com changes
+                    executionLog.WriteLine("LASTPLANID:" + plan.uniqueId);
 
                     long startTime = 0;
                     Timer.QueryPerformanceCounter(ref startTime);
 
-                    bool execSucceeded = p.Execute(out execResult,
-                        executionLog, writer, out exceptionThrown,
-                        out contractViolated, this.config.forbidnull,
+                    bool execSucceeded = plan.Execute(out execResult,
+                        executionLog, writer, out preconditionViolated, out exceptionThrown,
+                        out contractViolated, config.forbidnull,
                         config.monkey);
 
                     long endTime = 0;
                     Timer.QueryPerformanceCounter(ref endTime);
                     TimeTracking.timeSpentExecutingTestedCode += (endTime - startTime);
 
-                    executionLog.Close(); 
-                    //writer.Close(); //xiao.qu@us.abb.com adds for debuglog
+                    executionLog.Close();
 
-                    /*
-                     * New: Now the execution of plan might fail (recursively) if any of the output tuple
-                     * objects violate the contract for ToString(), HashCode(), Equals(o)
-                     */
                     if (!execSucceeded)
                     {
-                        stats.ExecutionResult(exceptionThrown == null ? "other" : exceptionThrown.GetType().FullName);
+                        if (preconditionViolated)
+                        {
+                            stats.ExecutionResult("precondition violated");
+                        }
 
-                        // TODO This should alway be true...
                         if (exceptionThrown != null)
                         {
-                            p.exceptionThrown = exceptionThrown;
-                            this.testFileWriter.Move(p, exceptionThrown);
+                            stats.ExecutionResult(exceptionThrown.GetType().FullName);
+                            plan.exceptionThrown = exceptionThrown;
+                            testFileWriter.Move(plan, exceptionThrown);
 
                             if (exceptionThrown is AccessViolationException)
                             {
                                 Logger.Error("SECOND-CHANCE ACCESS VIOLATION EXCEPTION.");
-                                System.Environment.Exit(1);
+                                Environment.Exit(1);
                             }
                         }
 
 
                         //string exceptionMessage = writer.ToString(); //no use? xiao.qu@us.abb.com comments out
 
-                        Util.Assert(p.exceptionThrown != null || contractViolated);
+                        Util.Assert(plan.exceptionThrown != null || contractViolated || preconditionViolated);
 
                         if (config.monkey)
                         {
-                            builderPlans.AddPlan(p);
-                            //exceptionPlans.AddPlan(p); //new: also add it to exceptions for monkey
+                            builderPlans.AddPlan(plan);
                         }
                         else if (exceptionThrown != null)
                         {
-                            exceptionPlans.AddPlan(p);
+                            exceptionPlans.AddPlan(plan);
                         }
                     }
                     else
@@ -188,20 +180,20 @@ namespace Randoop
 
                         if (config.outputnormalinputs)
                         {
-                            this.testFileWriter.MoveNormalTermination(p);
+                            testFileWriter.MoveNormalTermination(plan);
                         }
                         else
                         {
-                            this.testFileWriter.Remove(p);
+                            testFileWriter.Remove(plan);
                         }
 
                         // If forbidNull, then make inactive any result tuple elements that are null.
-                        if (this.config.forbidnull)
+                        if (config.forbidnull)
                         {
-                            Util.Assert(p.NumTupleElements == execResult.tuple.Length);
-                            for (int i = 0; i < p.NumTupleElements; i++)
+                            Util.Assert(plan.NumTupleElements == execResult.tuple.Length);
+                            for (int i = 0; i < plan.NumTupleElements; i++)
                                 if (execResult.tuple[i] == null)
-                                    p.SetActiveTupleElement(i, false);
+                                    plan.SetActiveTupleElement(i, false);
                             //Util.Assert(!allNull); What is the motivation behind this assertion?
                         }
 
@@ -209,28 +201,28 @@ namespace Randoop
                         //only allow the receivers to be arguments to future methods
                         if (config.forbidparamobj)
                         {
-                            Util.Assert(p.NumTupleElements == execResult.tuple.Length);
-                            for (int i = 1; i < p.NumTupleElements; i++)
-                                p.SetActiveTupleElement(i, false);
+                            Util.Assert(plan.NumTupleElements == execResult.tuple.Length);
+                            for (int i = 1; i < plan.NumTupleElements; i++)
+                                plan.SetActiveTupleElement(i, false);
 
                         }
 
-                        builderPlans.AddPlan(p, execResult);
+                        builderPlans.AddPlan(plan, execResult);
                     }
                 }
             }
-
         }
 
-        private void PrintPercentageExecuted()
-        {
-            long endTime = 0;
-            Timer.QueryPerformanceCounter(ref endTime);
+        //TODO Diana: delete this maybe?
+        //private void PrintPercentageExecuted()
+        //{
+        //    long endTime = 0;
+        //    Timer.QueryPerformanceCounter(ref endTime);
 
-            long totalGenerationTime = endTime - TimeTracking.generationStartTime;
+        //    long totalGenerationTime = endTime - TimeTracking.generationStartTime;
 
-            double ratioExecToGen =
-                (double)TimeTracking.timeSpentExecutingTestedCode / (double)totalGenerationTime;
-        }
+        //    double ratioExecToGen =
+        //        (double)TimeTracking.timeSpentExecutingTestedCode / (double)totalGenerationTime;
+        //}
     }
 }

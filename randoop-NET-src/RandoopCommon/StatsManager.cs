@@ -37,8 +37,8 @@ namespace Randoop
 
         public StatsManager(RandoopConfiguration config)
         {
-            this.writer = new StreamWriter(config.statsFile.fileName);
-            this.state = StatKind.Start;
+            writer = new StreamWriter(config.statsFile.fileName);
+            state = StatKind.Start;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:DoNotPassLiteralsAsLocalizedParameters", MessageId = "Common.RandoopBareExceptions.InternalError.#ctor(System.String)")]
@@ -49,13 +49,13 @@ namespace Randoop
             if (t == null)
                 throw new Common.RandoopBareExceptions.InternalError("Bug in Randoop.StatsManager");
 
-            if (this.state != StatKind.Start)
+            if (state != StatKind.Start)
                 throw new Common.RandoopBareExceptions.InternalError("Bug in Randoop.StatsManager.");
 
             writer.Write(t);
             writer.Write("#");
 
-            this.state = StatKind.Selected;
+            state = StatKind.Selected;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:DoNotPassLiteralsAsLocalizedParameters", MessageId = "Common.RandoopBareExceptions.InternalError.#ctor(System.String)")]
@@ -64,7 +64,7 @@ namespace Randoop
 
             //Logger.Debug("@@@ created new " + cr);
 
-            if (this.state != StatKind.Selected)
+            if (state != StatKind.Selected)
                 throw new Common.RandoopBareExceptions.InternalError("Bug in Randoop.StatsManager.");
 
             if (cr == CreationResult.NoInputs)
@@ -102,7 +102,7 @@ namespace Randoop
             if (result == null)
                 throw new ArgumentNullException("result");
 
-            if (this.state != StatKind.CreatedNewPlan)
+            if (state != StatKind.CreatedNewPlan && result != "precondition violation")
                 throw new Common.RandoopBareExceptions.InternalError("Bug in Randoop.StatsManager.");
 
             writer.Write(result);
@@ -131,8 +131,7 @@ namespace Randoop
         ///    it means that plan executed normally. Otherwise, result
         ///    identifies the failing behavior (e.g. an exception name).
         ///    
-        public static void ComputeStats(string resultsFileName,
-            System.Collections.ObjectModel.Collection<FileInfo> statsFiles)
+        public static void ComputeStats(string resultsFileName, Collection<FileInfo> statsFiles)
         {
             Dictionary<string, OneActionStats> stats = new Dictionary<string, OneActionStats>();
 

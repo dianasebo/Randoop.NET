@@ -130,7 +130,7 @@ namespace Randoop
             return methodsAndConstructorsArray[Common.Enviroment.Random.Next(methodsAndConstructorsArray.Length)];
         }
 
-        public MemberInfo RandomActiveMethodorConstructor(Dictionary<Type, List<MemberInfo>> activeMembers, Type t)
+        public MemberInfo RandomActiveMethodOrConstructor(Dictionary<Type, List<MemberInfo>> activeMembers, Type t)
         {
             try
             {

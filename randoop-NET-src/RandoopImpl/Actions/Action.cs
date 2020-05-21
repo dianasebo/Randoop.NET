@@ -40,7 +40,7 @@ namespace Randoop
         /// <returns></returns>
         public abstract bool Execute(out ResultTuple ret,
             ResultTuple[] results, Plan.ParameterChooser[] parameterMap, TextWriter executionLog,
-            TextWriter writer, out Exception exceptionThrown, out bool contractViolated, bool forbidNull);
+            TextWriter writer, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull);
 
         public abstract Type[] ParameterTypes { get; }
 

@@ -317,20 +317,20 @@ namespace Randoop
         public Plan(Transformer transfomer, Plan[] parentPlans, ParameterChooser[] parameterChoosers)
         {
 
-            this.uniqueId = uniqueIdCounter++;
-            this.transformer = transfomer;
+            uniqueId = uniqueIdCounter++;
+            transformer = transfomer;
             this.parentPlans = parentPlans;
 
             this.parameterChoosers = parameterChoosers;
-            this.activeTupleElements = transformer.DefaultActiveTupleTypes;
+            activeTupleElements = transformer.DefaultActiveTupleTypes;
 
-            this.resultElementProperties = new ResultElementExecutionProperties[this.activeTupleElements.Length];
-            for (int i = 0; i < this.resultElementProperties.Length; i++)
-                this.resultElementProperties[i] = new ResultElementExecutionProperties();
+            resultElementProperties = new ResultElementExecutionProperties[this.activeTupleElements.Length];
+            for (int i = 0; i < resultElementProperties.Length; i++)
+                resultElementProperties[i] = new ResultElementExecutionProperties();
 
-            this.treenodes = 1;
+            treenodes = 1;
             foreach (Plan p in parentPlans)
-                this.treenodes += p.treenodes;
+                treenodes += p.treenodes;
         }
 
         /// <summary>
@@ -352,18 +352,16 @@ namespace Randoop
         /// <param name="executionResults"></param>
         /// <returns></returns>
         public bool ExecuteHelper(out ResultTuple executionResult, TextWriter executionLog,
-            TextWriter debugLog, out Exception exceptionThrown, out bool contractViolated,
+            TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated,
             bool forbidNull)
         {
-
-
             // Execute parent plans
             ResultTuple[] results1 = new ResultTuple[parentPlans.Length];
             for (int i = 0; i < parentPlans.Length; i++)
             {
                 Plan plan = parentPlans[i];
                 ResultTuple tempResults;
-                if (!plan.ExecuteHelper(out tempResults, executionLog, debugLog, out exceptionThrown, out contractViolated, forbidNull))
+                if (!plan.ExecuteHelper(out tempResults, executionLog, debugLog, out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull))
                 {
                     executionResult = null;
                     return false;
@@ -373,7 +371,7 @@ namespace Randoop
 
             //// Execute
             if (!transformer.Execute(out executionResult, results1, parameterChoosers, executionLog, debugLog,
-                out exceptionThrown, out contractViolated, forbidNull))
+                out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull))
             {
                 executionResult = null;
                 return false;
@@ -388,10 +386,10 @@ namespace Randoop
         /// <param name="executionResults"></param>
         /// <returns></returns>
         public bool Execute(out ResultTuple executionResult, TextWriter executionLog,
-            TextWriter debugLog, out Exception exceptionThrown,
+            TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown,
             out bool contractViolated, bool forbidNull, bool monkey)
         {
-            this.numTimesExecuted++;
+            numTimesExecuted++;
             long startTime = 0;
             Timer.QueryPerformanceCounter(ref startTime);
 
@@ -401,7 +399,7 @@ namespace Randoop
             {
                 Plan plan = parentPlans[i];
                 ResultTuple tempResults;
-                if (!plan.ExecuteHelper(out tempResults, executionLog, debugLog, out exceptionThrown, out contractViolated, forbidNull))
+                if (!plan.ExecuteHelper(out tempResults, executionLog, debugLog, out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull))
                 {
                     executionResult = null;
                     return false;
@@ -411,7 +409,7 @@ namespace Randoop
 
             // Execute.
             if (!transformer.Execute(out executionResult, results1, parameterChoosers, executionLog, debugLog,
-                out exceptionThrown, out contractViolated, forbidNull))
+                out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull))
             {
                 executionResult = null;
                 return false;
@@ -479,7 +477,7 @@ namespace Randoop
             //    + this.transformer.ToString() //xiao.qu@us.abb.com changes for capture last return value
             //    + " type: " + last_ret_type
             //    + " val: " + last_ret_val);
-            + this.transformer.ToString()); 
+            + this.transformer.ToString());
 
             // Create exception.
             TestCase.ExceptionDescription exception;

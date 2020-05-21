@@ -49,7 +49,7 @@ namespace Randoop
         #region Data structures for fair Randoop
 
 
-    
+
         //set of types that have at least one method active
         Dictionary<Type, bool> activeTypes = new Dictionary<Type, bool>();
         //the set of active methods for each type
@@ -64,7 +64,7 @@ namespace Randoop
         Dictionary<Type, List<MemberInfo>> type2pendingMembers = new Dictionary<Type, List<MemberInfo>>();
 
         //temporary hack to redirect the stats dmp to a file, from the std output
-        static TextWriter fairOptLog = null; 
+        static TextWriter fairOptLog = null;
 
         #endregion
 
@@ -110,8 +110,8 @@ namespace Randoop
                 for (; ; )
                 {
                     //field setting
-                    if (mutateFields && this.actions.fieldList.Count > 0 && Common.Enviroment.Random.Next(2) == 0)
-                        NewFieldSettingPlan(this.actions.RandomField(), planManager, forbidNull);
+                    if (mutateFields && actions.fieldList.Count > 0 && Enviroment.Random.Next(2) == 0)
+                        NewFieldSettingPlan(actions.RandomField(), planManager, forbidNull);
 
                     //If the active set is recomputed from scratch
                     //InitializeActiveMemberAndDependency(planManager);
@@ -128,11 +128,11 @@ namespace Randoop
                     {
                         //pick up an active method of the type
 
-                        MemberInfo m;
+                        MemberInfo method;
 
                         try
                         {
-                            m = actions.RandomActiveMethodorConstructor(activeMembers, t);
+                            method = actions.RandomActiveMethodOrConstructor(activeMembers, t);
                         }
                         catch (Exception e)
                         {
@@ -144,20 +144,20 @@ namespace Randoop
                         int prevBuilderPlanCnt = planManager.builderPlans.NumPlans;
 
                         //Randoop step
-                        ExploreMemberInternal(timer, planManager, forbidNull, m);
+                        ExploreMemberInternal(timer, planManager, forbidNull, method);
 
                         //need to know if the object creation was succesful, since we know the type
                         //we do it indirectly by looking at the builder plans
                         if (planManager.builderPlans.NumPlans > prevBuilderPlanCnt)
                         {
                             Type retType;
-                            if (m is MethodInfo)
+                            if (method is MethodInfo)
                             {
-                                retType = (m as MethodInfo).ReturnType;
+                                retType = (method as MethodInfo).ReturnType;
                             }
-                            else if (m is ConstructorInfo)
+                            else if (method is ConstructorInfo)
                             {
-                                retType = (m as ConstructorInfo).DeclaringType;
+                                retType = (method as ConstructorInfo).DeclaringType;
                             }
                             else
                             {
@@ -210,11 +210,11 @@ namespace Randoop
                     MemberInfo m;
                     if (methodWeigthing == MethodWeighing.RoundRobin)
                     {
-                        m = this.actions.RandomMethodOrConstructorRoundRobin();
+                        m = actions.RandomMethodOrConstructorRoundRobin();
                     }
                     else if (methodWeigthing == MethodWeighing.Uniform)
                     {
-                        m = this.actions.RandomMethodOrConstructorUniform();
+                        m = actions.RandomMethodOrConstructorUniform();
                     }
                     else
                         throw new RandoopBug("Unrecognized method weighting option.");
@@ -265,7 +265,7 @@ namespace Randoop
 
             if (pendingMembers == null) return; // no one cares about this type
 
-            RandoopPrintFairStats("UpdateActiveMethodsAndClasses", "Come to updateActiveMembers for <" +  retType + ">" + "with" + pendingMembers.Count + " size depMembers");
+            RandoopPrintFairStats("UpdateActiveMethodsAndClasses", "Come to updateActiveMembers for <" + retType + ">" + "with" + pendingMembers.Count + " size depMembers");
 
 
             foreach (MemberInfo mi in pendingMembers)
@@ -571,19 +571,19 @@ namespace Randoop
         }
 
         private void ExploreMemberInternal(ITimer timer, PlanManager planManager, bool forbidNull,
-            MemberInfo m)
+            MemberInfo method)
         {
-            Type[] sugg = GetParameterTypeSuggestions(m, planManager);
+            Type[] argumentTypes = GetParameterTypeSuggestions(method, planManager);
 
-            if (m is ConstructorInfo)
+            if (method is ConstructorInfo)
             {
-                NewConstructorPlan((m as ConstructorInfo).DeclaringType, m as ConstructorInfo, planManager,
-                    forbidNull, sugg);
+                NewConstructorPlan((method as ConstructorInfo).DeclaringType, method as ConstructorInfo, planManager,
+                    forbidNull, argumentTypes);
             }
             else
             {
-                Util.Assert(m is MethodInfo);
-                NewMethodPlan((m as MethodInfo).DeclaringType, m as MethodInfo, planManager, forbidNull, sugg);
+                Util.Assert(method is MethodInfo);
+                NewMethodPlan((method as MethodInfo).DeclaringType, method as MethodInfo, planManager, forbidNull, argumentTypes);
             }
         }
 
@@ -631,12 +631,12 @@ namespace Randoop
         private void NewMethodPlan(Type type, MethodInfo method, PlanManager planManager,
             bool forbidNull, Type[] methodArgumentTypes)
         {
-            this.stats.Selected(MethodCall.Get(method).ToString());
+            stats.Selected(MethodCall.Get(method).ToString());
 
             PlanFilter f;
             if (forbidNull)
             {
-                f = delegate(Plan p, int i)
+                f = delegate (Plan p, int i)
                 {
                     if (!method.IsStatic && i == 0 && p.transformer is PrimitiveValueTransformer)
                         return false;
@@ -650,7 +650,7 @@ namespace Randoop
             }
             else
             {
-                f = delegate(Plan p, int i)
+                f = delegate (Plan p, int i)
               {
                   if (!method.IsStatic && i == 0 && p.transformer is PrimitiveValueTransformer)
                       return false;
@@ -658,8 +658,7 @@ namespace Randoop
               };
             }
 
-            RandomPlansResult r;
-            if (!RandomPlans(out r, methodArgumentTypes, f, planManager.builderPlans, forbidNull, method))
+            if (!RandomPlans(out RandomPlansResult randomPlansResult, methodArgumentTypes, f, planManager.builderPlans, forbidNull, method))
             {
                 stats.CreatedNew(CreationResult.NoInputs);
                 return;
@@ -667,9 +666,9 @@ namespace Randoop
             //Logger.Debug("\t\t A plan has been created");
 
             Plan plan = new Plan(MethodCall.Get(method),
-                r.fplans, r.fparameterChoosers);
+                randomPlansResult.fplans, randomPlansResult.fparameterChoosers);
 
-            planManager.AddMaybeExecutingIfNeeded(plan, this.stats);
+            planManager.AddMaybeExecutingIfNeeded(plan, stats);
         }
 
 
@@ -689,7 +688,7 @@ namespace Randoop
             PlanFilter f;
             if (forbidNull)
             {
-                f = delegate(Plan p, int i)
+                f = delegate (Plan p, int i)
                 {
                     // Non-null heuristic
                     if (!constructorArgumentTypes[i].IsValueType && (p.transformer is PrimitiveValueTransformer))
@@ -700,7 +699,7 @@ namespace Randoop
             }
             else
             {
-                f = delegate(Plan p, int i)
+                f = delegate (Plan p, int i)
               {
                   return true;
               };
@@ -738,7 +737,7 @@ namespace Randoop
 
             RandomPlansResult r;
             if (!RandomPlans(out r, parameterTypes,
-                delegate(Plan p, int i)
+                delegate (Plan p, int i)
                 {
                     if (i == 0 && p.transformer is PrimitiveValueTransformer)
                         return false;
@@ -781,7 +780,7 @@ namespace Randoop
             PlanDataBase planDB, bool forbidNull, MethodInfo method)
         {
             List<Plan> plans = new List<Plan>();
-            Plan.ParameterChooser[] parameterMap = new Plan.ParameterChooser[typesDesired.Length];                  
+            Plan.ParameterChooser[] parameterMap = new Plan.ParameterChooser[typesDesired.Length];
 
             for (int i = 0; i < typesDesired.Length; i++)
             {
@@ -808,12 +807,12 @@ namespace Randoop
                             //baseType = System.Type.GetType(elementType);
 
                             baseType = typeDesired.GetProperty("Item").PropertyType;
-                            
-                            if(baseType == null)
+
+                            if (baseType == null)
                                 baseType = typeof(object);
 
                             t = ListBuilderTransformer.Get(baseType, randArrayLength);
-                             
+
                         }
                         //xiao.qu@us.abb.com addes -- end
                         else
@@ -829,7 +828,7 @@ namespace Randoop
 
                     if (forbidNull)
                     {
-                        f = delegate(Plan p, int x)
+                        f = delegate (Plan p, int x)
                         {
                             // Non-null heuristic
                             if (baseType.IsValueType && (p.transformer is PrimitiveValueTransformer)
@@ -840,7 +839,7 @@ namespace Randoop
                         };
                     }
                     else
-                        f = delegate(Plan dontCareP, int dontCareInt) { return true; };
+                        f = delegate (Plan dontCareP, int dontCareInt) { return true; };
 
                     if (!RandomPlans(out arrayResult, t.ParameterTypes, f, planDB, forbidNull, null))
                     {
@@ -886,7 +885,7 @@ namespace Randoop
                     else
                     {
 
-                        chosenplan = planDB.RandomPlan(typeDesired);                        
+                        chosenplan = planDB.RandomPlan(typeDesired);
 
                         if (chosenplan == null)
                         {
@@ -923,7 +922,7 @@ namespace Randoop
                     }
 
                     parameterMap[i] =
-                        new Plan.ParameterChooser(i, possibleResultIndices[Common.Enviroment.Random.Next(possibleResultIndices.Count)]);
+                        new Plan.ParameterChooser(i, possibleResultIndices[Enviroment.Random.Next(possibleResultIndices.Count)]);
 
                 }
             }

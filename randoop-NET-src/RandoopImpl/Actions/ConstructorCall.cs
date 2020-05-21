@@ -158,9 +158,10 @@ namespace Randoop
         //}
 
         public override bool Execute(out ResultTuple ret, ResultTuple[] results,
-            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out Exception exceptionThrown, out bool contractViolated, bool forbidNull)
+            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull)
         {
             contractViolated = false;
+            preconditionViolated = false;
 
             this.timesExecuted++;
             long startTime = 0;
@@ -181,7 +182,7 @@ namespace Randoop
             object newObject = null;
 
             CodeExecutor.CodeToExecute call =
-                delegate() { newObject = fconstructor.Invoke(objects); };
+                delegate () { newObject = fconstructor.Invoke(objects); };
 
             executionLog.WriteLine("execute constructor " + this.fconstructor.DeclaringType);
             debugLog.WriteLine("execute constructor " + this.fconstructor.DeclaringType); //xiao.qu@us.abb.com adds
@@ -191,7 +192,7 @@ namespace Randoop
             if (!CodeExecutor.ExecuteReflectionCall(call, debugLog, out exceptionThrown))
             {
                 ret = null;
-                
+
 
                 if (exceptionThrown is AccessViolationException)
                 {

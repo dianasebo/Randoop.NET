@@ -121,9 +121,10 @@ namespace Randoop
 
 
         public override bool Execute(out ResultTuple ret, ResultTuple[] results,
-            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out Exception exceptionThrown, out bool contractViolated, bool forbidNull)
+            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull)
         {
             contractViolated = false;
+            preconditionViolated = false;
 
             Util.Assert(parameterMap.Length == 2);
 
@@ -136,7 +137,7 @@ namespace Randoop
             if (forbidNull)
                 Util.Assert(val != null);
 
-            CodeExecutor.CodeToExecute call = delegate() { ffield.SetValue(receiver, val); };
+            CodeExecutor.CodeToExecute call = delegate () { ffield.SetValue(receiver, val); };
 
             executionLog.WriteLine("set field " + ffield.Name);
             debugLog.WriteLine("set field " + ffield.Name); //xiao.qu@us.abb.com adds

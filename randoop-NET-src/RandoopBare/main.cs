@@ -79,7 +79,7 @@ namespace RandoopBare
             }
 
             // Parse XML file with generation parameters.
-            String configFileName = ConfigFileName.Parse(args[0]);
+            string configFileName = ConfigFileName.Parse(args[0]);
             RandoopConfiguration config = LoadConfigFile(configFileName);
 
             // Set the random number generator.
@@ -132,7 +132,7 @@ namespace RandoopBare
 
             Logger.Debug("Analyzing assembly.");
 
-            ActionSet actions = null;
+            ActionSet actions;
             try
             {
                 actions = new ActionSet(typesToExplore, filter);
@@ -140,7 +140,7 @@ namespace RandoopBare
             catch (EmpytActionSetException)
             {
                 string msg = "After filtering based on configuration files, no remaining methods or constructors to explore.";
-                throw new Common.RandoopBareExceptions.InvalidUserParamsException(msg);
+                throw new InvalidUserParamsException(msg);
             }
 
             Logger.Debug("Generating tests.");
@@ -156,13 +156,11 @@ namespace RandoopBare
             {
                 Logger.Error("Explorer raised exception {0}", e.ToString());
             }
-
-            //Mono.Cecil.Cil.
         }
 
         private static RandoopConfiguration LoadConfigFile(string p)
         {
-            RandoopConfiguration retval = null;
+            RandoopConfiguration retval;
             try
             {
                 retval = RandoopConfiguration.Load(p);
@@ -170,7 +168,7 @@ namespace RandoopBare
             catch (Exception e)
             {
                 string msg = "Failed to load XML configuration file " + p + ": " + e.Message;
-                throw new Common.RandoopBareExceptions.InternalError(msg);
+                throw new InternalError(msg);
             }
             return retval;
         }
