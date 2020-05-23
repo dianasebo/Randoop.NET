@@ -12,7 +12,9 @@
 
 using Common;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Randoop
 {
@@ -101,7 +103,7 @@ namespace Randoop
         }
     }
 
-    public class ClassifyingTestFileWriter : ITestFileWriter
+    public class ClassifyingByBehaviorTestFileWriter : ITestFileWriter
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -111,7 +113,7 @@ namespace Randoop
 
         private DirectoryInfo normalTerminationCurrentDir;
 
-        public ClassifyingTestFileWriter(DirectoryInfo di)
+        public ClassifyingByBehaviorTestFileWriter(DirectoryInfo di)
         {
             outputDir = di;
             numNormalTerminationPlansWritten = 0;
@@ -201,6 +203,75 @@ namespace Randoop
         }
     }
 
+    public class ClassifyingByClassTestFileWriter : ITestFileWriter
+    {
+        private DirectoryInfo outputDir;
+        private IList<DirectoryInfo> classDirectories;
 
+        public ClassifyingByClassTestFileWriter(DirectoryInfo di)
+        {
+            outputDir = di;
+            if (!outputDir.Exists)
+            {
+                outputDir.Create();
+            }
+            classDirectories = new List<DirectoryInfo>();
+            DirectoryInfo tempDir = new DirectoryInfo(outputDir + "\\temp");
+            tempDir.Create();
+        }
+
+        public void Move(Plan p, Exception exceptionThrown)
+        {
+            var correspondingDirectory = DirectoryAlreadyExists(p.ClassName) ? classDirectories.Single(_ => _.Name == p.ClassName) : CreateNewDirectory(p.ClassName);
+            string testClassName = p.ClassName + p.TestCaseId;
+            string oldTestFileName = outputDir + "\\" + "temp" + "\\" + testClassName + ".cs";
+            string newTestFileName = correspondingDirectory + "\\" + testClassName + ".cs";
+            TestWriterHelperMethods.WritePlanToFile(p, newTestFileName, exceptionThrown.GetType(), testClassName);
+            new FileInfo(oldTestFileName).Delete();
+        }
+
+        public void MoveNormalTermination(Plan p)
+        {
+            var correspondingDirectory = DirectoryAlreadyExists(p.ClassName) ? classDirectories.Single(_ => _.Name == p.ClassName) : CreateNewDirectory(p.ClassName);
+            string testClassName = p.ClassName + p.TestCaseId;
+            string oldTestFileName = outputDir + "\\" + "temp" + "\\" + testClassName + ".cs";
+            string newTestFileName = correspondingDirectory + "\\" + testClassName + ".cs";
+            TestWriterHelperMethods.WritePlanToFile(p, newTestFileName, null, testClassName);
+            new FileInfo(oldTestFileName).Delete();
+        }
+
+        public void Remove(Plan p)
+        {
+            string testClassName = p.ClassName + p.TestCaseId;
+            string oldTestFileName = outputDir + "\\" + "temp" + "\\" + testClassName + ".cs";
+            new FileInfo(oldTestFileName).Delete();
+        }
+
+        public void RemoveTempDir()
+        {
+            new DirectoryInfo(outputDir + "\\temp").Delete(true);
+        }
+
+        public void WriteTest(Plan p)
+        {
+            string testClassName = p.ClassName + p.TestCaseId;
+            string fileName = outputDir + "\\" + "temp" + "\\" + testClassName + ".cs";
+            TestWriterHelperMethods.WritePlanToFile(p, fileName, null, testClassName);
+        }
+
+        private bool DirectoryAlreadyExists(string className)
+        {
+            return classDirectories.Any(_ => _.Name == className);
+        }
+
+        private DirectoryInfo CreateNewDirectory(string className)
+        {
+            var dirName = outputDir + "\\" + className;
+            DirectoryInfo newDirectory = new DirectoryInfo(dirName);
+            newDirectory.Create();
+            classDirectories.Add(newDirectory);
+            return newDirectory;
+        }
+    }
 
 }

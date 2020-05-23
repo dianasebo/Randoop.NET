@@ -39,7 +39,7 @@ namespace Randoop
         }
 
         public override Type[] TupleTypes
-        {            
+        {
             //Type genericListType = typeof(List<>).MakeGenericType(myType);
             //get { return new Type[] { typeof(List<int>) }; }
             get { return new Type[] { typeof(List<>).MakeGenericType(baseType) }; }
@@ -78,26 +78,26 @@ namespace Randoop
             Util.Assert(arguments.Count == this.ParameterTypes.Length);
 
             StringBuilder b = new StringBuilder();
-            string retType = "System.Collections.Generic.List<"+this.baseType+">";
+            string retType = "System.Collections.Generic.List<" + this.baseType + ">";
             b.Append(retType + " " + newValueName + " =  new " + retType + "();\n\r");
 
             for (int i = 0; i < arguments.Count; i++)
             {
-                b.Append("    "+newValueName + "." + "Add(" + arguments[i] + "); \n\r");
+                b.Append("    " + newValueName + "." + "Add(" + arguments[i] + "); \n\r");
             }
             return b.ToString();
         }
 
-        
+
         public override bool Execute(out ResultTuple ret, ResultTuple[] parameters,
-            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull)
+            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContracts)
         {
             contractViolated = false;
             preconditionViolated = false;
 
             //List<int> a = new List<int>();
             Type genericListType = typeof(List<>).MakeGenericType(baseType);
-            IList a = (IList)Activator.CreateInstance(genericListType);             
+            IList a = (IList)Activator.CreateInstance(genericListType);
 
             for (int i = 0; i < length; i++)
             {

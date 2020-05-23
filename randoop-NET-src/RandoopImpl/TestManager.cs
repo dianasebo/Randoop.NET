@@ -61,17 +61,18 @@ namespace Randoop
 
             Plan.uniqueIdCounter = config.planstartid;
 
-            if (config.singledir)
+            switch (config.directoryStrategy)
             {
-                testFileWriter = new SingleDirTestWriter(new DirectoryInfo(config.outputdir));
+                case DirectoryStrategy.Single:
+                    testFileWriter = new SingleDirTestWriter(new DirectoryInfo(config.outputdir));
+                    break;
+                case DirectoryStrategy.ClassifyingByBehavior:
+                    testFileWriter = new ClassifyingByBehaviorTestFileWriter(new DirectoryInfo(config.outputdir));
+                    break;
+                case DirectoryStrategy.ClassifyingByClass:
+                    testFileWriter = new ClassifyingByClassTestFileWriter(new DirectoryInfo(config.outputdir));
+                    break;
             }
-            else
-            {
-                DirectoryInfo outputDir = new DirectoryInfo(config.outputdir);
-
-                testFileWriter = new ClassifyingTestFileWriter(outputDir);
-            }
-
         }
 
         /// <summary>
@@ -132,7 +133,7 @@ namespace Randoop
                     bool execSucceeded = plan.Execute(out execResult,
                         executionLog, writer, out preconditionViolated, out exceptionThrown,
                         out contractViolated, config.forbidnull,
-                        config.monkey);
+                        config.useRandoopContracts);
 
                     long endTime = 0;
                     Timer.QueryPerformanceCounter(ref endTime);

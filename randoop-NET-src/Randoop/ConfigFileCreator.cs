@@ -39,7 +39,9 @@ namespace Randoop
             string statsFileName = outputDirBase + "\\" + Path.GetRandomFileName() + ".stats.txt";
             config.statsFile = new FileName(statsFileName);
 
-            config.singledir = args.SingleDir;
+            config.useRandoopContracts = args.UseRandoopContracts;
+            Enum.TryParse(args.DirectoryStrategy, out DirectoryStrategy strategy);
+            config.directoryStrategy = strategy;
             config.outputnormalinputs = args.OutputNormal;
             config.outputdir = outputDirBase;
             config.planstartid = lastPlanId;

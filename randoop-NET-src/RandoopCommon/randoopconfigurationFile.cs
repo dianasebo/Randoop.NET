@@ -92,6 +92,9 @@ namespace Randoop // TODO change name to Common.
         [XmlElement("StartWithRoundRobinTimes")]
         public int startwithroundrobintimes = 0;
 
+        [XmlElement("UseRandoopContracts")]
+        public bool useRandoopContracts = false;
+
         [XmlElement("UseInternal")]
         public bool useinternal = false;
 
@@ -126,8 +129,8 @@ namespace Randoop // TODO change name to Common.
         [XmlElement("PlanStartId")]
         public int planstartid = 0;
 
-        [XmlElement("SingleDir")]
-        public bool singledir = false;
+        [XmlElement("DirectoryStrategy")]
+        public DirectoryStrategy directoryStrategy = DirectoryStrategy.ClassifyingByClass;
 
         [XmlElement("OutputDir")]
         public string outputdir;
@@ -187,6 +190,13 @@ namespace Randoop // TODO change name to Common.
     {
         SystemRandom,
         Crypto
+    }
+
+    public enum DirectoryStrategy
+    {
+        ClassifyingByClass,
+        Single,
+        ClassifyingByBehavior
     }
 
     /// <summary>

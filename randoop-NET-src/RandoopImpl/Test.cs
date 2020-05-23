@@ -355,7 +355,7 @@ namespace Randoop
         /// <returns></returns>
         public bool ExecuteHelper(out ResultTuple executionResult, TextWriter executionLog,
             TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated,
-            bool forbidNull)
+            bool forbidNull, bool useRandoopContracts)
         {
             // Execute parent plans
             ResultTuple[] results1 = new ResultTuple[parentPlans.Length];
@@ -363,7 +363,7 @@ namespace Randoop
             {
                 Plan plan = parentPlans[i];
                 ResultTuple tempResults;
-                if (!plan.ExecuteHelper(out tempResults, executionLog, debugLog, out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull))
+                if (!plan.ExecuteHelper(out tempResults, executionLog, debugLog, out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull, useRandoopContracts))
                 {
                     executionResult = null;
                     return false;
@@ -373,7 +373,7 @@ namespace Randoop
 
             //// Execute
             if (!transformer.Execute(out executionResult, results1, parameterChoosers, executionLog, debugLog,
-                out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull))
+                out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull, useRandoopContracts))
             {
                 executionResult = null;
                 return false;
@@ -389,7 +389,7 @@ namespace Randoop
         /// <returns></returns>
         public bool Execute(out ResultTuple executionResult, TextWriter executionLog,
             TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown,
-            out bool contractViolated, bool forbidNull, bool monkey)
+            out bool contractViolated, bool forbidNull, bool useRandoopContracts)
         {
             numTimesExecuted++;
             long startTime = 0;
@@ -401,7 +401,7 @@ namespace Randoop
             {
                 Plan plan = parentPlans[i];
                 ResultTuple tempResults;
-                if (!plan.ExecuteHelper(out tempResults, executionLog, debugLog, out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull))
+                if (!plan.ExecuteHelper(out tempResults, executionLog, debugLog, out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull, useRandoopContracts))
                 {
                     executionResult = null;
                     return false;
@@ -411,7 +411,7 @@ namespace Randoop
 
             // Execute.
             if (!transformer.Execute(out executionResult, results1, parameterChoosers, executionLog, debugLog,
-                out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull))
+                out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull, useRandoopContracts))
             {
                 executionResult = null;
                 return false;

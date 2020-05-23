@@ -55,6 +55,17 @@ namespace Randoop
             }
         }
 
+        public bool UseRandoopContracts
+        {
+            get
+            {
+                foreach (string s in args)
+                    if (s.ToLower().Equals("/randoopcontracts"))
+                        return true;
+                return false;
+            }
+        }
+
         public bool TrueRandom
         {
             get
@@ -107,7 +118,7 @@ namespace Randoop
                 foreach (string s in args)
                     if (s.ToLower().Equals("/pageheap"))
                         return true;
-                return false; 
+                return false;
             }
         }
 
@@ -123,14 +134,14 @@ namespace Randoop
         }
 
 
-        public bool SingleDir
+        public string DirectoryStrategy
         {
             get
             {
                 foreach (string s in args)
-                    if (s.ToLower().Equals("/singledir"))
-                        return true;
-                return false;
+                    if (s.ToLower().Equals("/directorystrategy"))
+                        return s.Substring("/outputdir:".Length);
+                return null;
             }
         }
 
@@ -273,7 +284,7 @@ namespace Randoop
             }
         }
 
-        public bool Fair 
+        public bool Fair
         {
             get
             {

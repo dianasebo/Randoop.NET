@@ -406,7 +406,7 @@ namespace Randoop
         }
 
         public override bool Execute(out ResultTuple ret, ResultTuple[] parameters,
-            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull)
+            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContracts)
         {
             timesExecuted++;
             long startTime = 0;
@@ -421,7 +421,7 @@ namespace Randoop
                 objects[i] = parameters[pair.planIndex].tuple[pair.resultIndex];
             }
 
-            if (PreconditionViolated(method, objects))
+            if (useRandoopContracts && PreconditionViolated(method, objects))
             {
                 ret = null;
                 exceptionThrown = null;
