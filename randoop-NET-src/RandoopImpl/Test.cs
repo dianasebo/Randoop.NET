@@ -421,17 +421,7 @@ namespace Randoop
             return true;
         }
 
-        public string ToStringAsCSharpCode()
-        {
-            StringBuilder b = new StringBuilder();
-            foreach (string codeLine in CodeGenerator.AsCSharpCode(this))
-            {
-                b.AppendLine(codeLine);
-            }
-            return b.ToString();
-        }
-
-        public TestCase ToTestCase(Type exceptionThrown, bool printPlanToString, string className)
+        public TestCase ToTestCase(Type exceptionThrown, bool printPlanToString, string className, bool useRandoopContracts)
         {
             // Create imports list.
             Collection<string> imports = new Collection<string>();
@@ -440,7 +430,7 @@ namespace Randoop
 
             // Create test code list.
             Collection<string> testCode = new Collection<string>();
-            foreach (string codeLine in CodeGenerator.AsCSharpCode(this))
+            foreach (string codeLine in CodeGenerator.AsCSharpCode(this, useRandoopContracts))
             {
                 testCode.Add(codeLine);
             }

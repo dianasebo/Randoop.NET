@@ -80,7 +80,7 @@ namespace Randoop
 
         public abstract string MemberName { get; }
 
-        public abstract string ToCSharpCode(ReadOnlyCollection<string> arguments, String newValueName);
+        public abstract string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts);
 
     }
 

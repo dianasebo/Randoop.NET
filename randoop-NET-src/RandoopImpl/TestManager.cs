@@ -64,13 +64,13 @@ namespace Randoop
             switch (config.directoryStrategy)
             {
                 case DirectoryStrategy.Single:
-                    testFileWriter = new SingleDirTestWriter(new DirectoryInfo(config.outputdir));
+                    testFileWriter = new SingleDirTestWriter(new DirectoryInfo(config.outputdir), config.useRandoopContracts);
                     break;
                 case DirectoryStrategy.ClassifyingByBehavior:
-                    testFileWriter = new ClassifyingByBehaviorTestFileWriter(new DirectoryInfo(config.outputdir));
+                    testFileWriter = new ClassifyingByBehaviorTestFileWriter(new DirectoryInfo(config.outputdir), config.useRandoopContracts);
                     break;
                 case DirectoryStrategy.ClassifyingByClass:
-                    testFileWriter = new ClassifyingByClassTestFileWriter(new DirectoryInfo(config.outputdir));
+                    testFileWriter = new ClassifyingByClassTestFileWriter(new DirectoryInfo(config.outputdir), config.useRandoopContracts);
                     break;
             }
         }

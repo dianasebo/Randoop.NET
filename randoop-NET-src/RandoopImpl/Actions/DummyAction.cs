@@ -137,7 +137,7 @@ namespace Randoop
             }
         }
 
-        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, String newValueName)
+        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts)
         {
             throw new NotImplementedException("not implemented.");
         }

@@ -140,7 +140,7 @@ namespace Randoop
             {
                 foreach (string s in args)
                     if (s.ToLower().Equals("/directorystrategy"))
-                        return s.Substring("/outputdir:".Length);
+                        return s.Substring("/directorystrategy:".Length);
                 return null;
             }
         }

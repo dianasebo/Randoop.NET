@@ -163,7 +163,7 @@ namespace Randoop
         // TODO: This method can be largely improved. For one, it should
         // be broken up into smaller methods depending on the nature of
         // the method (regular method, operator, property, etc.).
-        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName)
+        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts)
         {
             StringBuilder code = new StringBuilder();
             //return value
@@ -274,7 +274,7 @@ namespace Randoop
             {
                 code.Append("]");
             }
-            code.Append(" ;");
+            code.Append(";");
 
             #region assertion
             ////xiao.qu@us.abb.com adds for capture return value for regression assertion -- start////
@@ -301,7 +301,12 @@ namespace Randoop
 
             //b.Append("\t//" + retType + "?=" + tempval.GetType().ToString() + ";\n"); //for debug
 
-            var assertion = new ContractAssertionGenerator(method).Compute(newValueName, arguments[0]);
+            var assertion = string.Empty;
+            if (useRandoopContracts)
+            {
+                assertion = new ContractAssertionGenerator(method).Compute(newValueName, arguments[0]);
+            }
+
             if (string.IsNullOrEmpty(assertion))
             {
                 assertion = new RegressionAssertionGenerator().GenerateRegressionAssertion(tempval, newValueName, timesReturnValRetrieved);
@@ -408,7 +413,6 @@ namespace Randoop
         public override bool Execute(out ResultTuple ret, ResultTuple[] parameters,
             Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContracts)
         {
-            timesExecuted++;
             long startTime = 0;
             Timer.QueryPerformanceCounter(ref startTime);
 
@@ -421,22 +425,31 @@ namespace Randoop
                 objects[i] = parameters[pair.planIndex].tuple[pair.resultIndex];
             }
 
-            if (useRandoopContracts && PreconditionViolated(method, objects))
+            preconditionViolated = false;
+            if (useRandoopContracts)
             {
-                ret = null;
-                exceptionThrown = null;
-                contractViolated = false;
-                preconditionViolated = true;
-                return false;
-            }
-            else
-            {
-                preconditionViolated = false;
+                try
+                {
+                    preconditionViolated = PreconditionViolated(method, objects);
+                }
+                catch (Exception) { } //precondition is invalid, ignore it and proceed with execution
+
+                if (preconditionViolated)
+                {
+                    ret = null;
+                    exceptionThrown = null;
+                    contractViolated = false;
+                    return false;
+                }
             }
 
             if (forbidNull)
+            {
                 foreach (object o in objects)
+                {
                     Util.Assert(o != null);
+                }
+            }
 
             CodeExecutor.CodeToExecute call;
 
@@ -461,6 +474,7 @@ namespace Randoop
             //        " but ReturnValue is " + ReturnValue.Count.ToString());
             //}
 
+            timesExecuted++;
             if (!CodeExecutor.ExecuteReflectionCall(call, debugLog, out exceptionThrown))
             {
                 //for exns we can ony add the class to faulty classes when its a guideline violation
@@ -551,16 +565,20 @@ namespace Randoop
 
         private bool PreconditionViolated(MethodInfo method, object[] objects)
         {
-            var methodParameters = method.GetParameters();
+            var arguments = objects.Select(_ => _.ToString()).OrderByDescending(_ => _.Length).ToList();
+            var methodParameterNames = method.GetParameters().Select(_ => _.Name).ToList();
             var precondition = method.GetCustomAttribute(typeof(Precondition)) as Precondition;
             var computedExpression = precondition.Expression;
-            for (int index = 0; index < methodParameters.Length; index++)
+
+            for (int index = 0; index < arguments.Count; index++)
             {
-                if (precondition.Parameters.Contains(methodParameters[index].Name))
+                var parameterName = methodParameterNames.SingleOrDefault(_ => _.Equals(arguments[index]));
+                if (parameterName == null)
                 {
-                    var argument = objects[index].ToString();
-                    computedExpression = computedExpression.Replace(methodParameters[index].Name, argument);
+                    throw new InvalidRandoopContractException();
                 }
+
+                computedExpression = computedExpression.Replace(parameterName, arguments[index]);
             }
 
             return new ExpressionEvaluator().Evaluate<bool>(computedExpression) == false;

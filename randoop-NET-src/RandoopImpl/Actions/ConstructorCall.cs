@@ -127,14 +127,14 @@ namespace Randoop
             }
         }
 
-        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, String newValueName)
+        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts)
         {
             // TODO assert that arguments.Count is correct.
             StringBuilder b = new StringBuilder();
             string retType =
                 SourceCodePrinting.ToCodeString(fconstructor.DeclaringType);
             b.Append(retType + " " + newValueName + " = ");
-            b.Append(" new " + SourceCodePrinting.ToCodeString(fconstructor.DeclaringType));
+            b.Append("new " + SourceCodePrinting.ToCodeString(fconstructor.DeclaringType));
             b.Append("(");
             for (int i = 0; i < arguments.Count; i++)
             {

@@ -267,7 +267,7 @@ namespace Randoop
             this.fvalue = value;
         }
 
-        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, String newValueName)
+        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts)
         {
             StringBuilder b = new StringBuilder();
             b.Append(
