@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Randoop
+namespace Randoop.RandoopContracts
 {
     public class InvalidRandoopContractException : Exception
     {

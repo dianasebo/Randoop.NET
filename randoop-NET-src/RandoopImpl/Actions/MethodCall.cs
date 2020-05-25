@@ -11,14 +11,12 @@
 
 
 
-using CodingSeb.ExpressionEvaluator;
 using Common;
-using RandoopContracts;
+using Randoop.RandoopContracts;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -163,7 +161,7 @@ namespace Randoop
         // TODO: This method can be largely improved. For one, it should
         // be broken up into smaller methods depending on the nature of
         // the method (regular method, operator, property, etc.).
-        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts)
+        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts, ContractAssertion canGenerateContractAssertion)
         {
             StringBuilder code = new StringBuilder();
             //return value
@@ -304,7 +302,7 @@ namespace Randoop
             var assertion = string.Empty;
             if (useRandoopContracts)
             {
-                assertion = new ContractAssertionGenerator(method).Compute(newValueName, arguments[0]);
+                assertion = new ContractAssertionGenerator(method).Compute(newValueName, arguments[0], canGenerateContractAssertion);
             }
 
             if (string.IsNullOrEmpty(assertion))
@@ -411,7 +409,7 @@ namespace Randoop
         }
 
         public override bool Execute(out ResultTuple ret, ResultTuple[] parameters,
-            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContracts)
+            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContracts, out ContractAssertion canGenerateContractAssertion)
         {
             long startTime = 0;
             Timer.QueryPerformanceCounter(ref startTime);
@@ -425,14 +423,15 @@ namespace Randoop
                 objects[i] = parameters[pair.planIndex].tuple[pair.resultIndex];
             }
 
+            canGenerateContractAssertion = new ContractAssertion();
             preconditionViolated = false;
             if (useRandoopContracts)
             {
                 try
                 {
-                    preconditionViolated = PreconditionViolated(method, objects);
+                    preconditionViolated = new RandoopContractsManager().PreconditionViolated(method, objects);
                 }
-                catch (Exception) { } //precondition is invalid, ignore it and proceed with execution
+                catch (InvalidRandoopContractException) { } //precondition is invalid, ignore it and proceed with execution
 
                 if (preconditionViolated)
                 {
@@ -512,8 +511,8 @@ namespace Randoop
                 ////xiao.qu@us.abb.com adds to capture return value -- start////
                 if (returnValue != null)
                 {
-                    if ((returnValue.GetType() == typeof(System.String))
-                        || (returnValue.GetType() == typeof(System.Boolean))
+                    if ((returnValue.GetType() == typeof(string))
+                        || (returnValue.GetType() == typeof(bool))
                         || (returnValue.GetType() == typeof(byte))
                         || (returnValue.GetType() == typeof(short))
                         || (returnValue.GetType() == typeof(int))
@@ -551,6 +550,7 @@ namespace Randoop
             if (ret != null)
             {
                 CheckContracts(ret, ref contractViolated, ref retval);
+                canGenerateContractAssertion = new RandoopContractsManager().ValidateAssertionContracts(method, receiver, returnValue);
             }
 
             if (contractViolated)  //xiao.qu@us.abb.com adds
@@ -558,30 +558,9 @@ namespace Randoop
 
             long endTime = 0;
             Timer.QueryPerformanceCounter(ref endTime);
-            executionTimeAccum += ((double)(endTime - startTime)) / ((double)(Timer.PerfTimerFrequency));
+            executionTimeAccum += endTime - startTime / (double)Timer.PerfTimerFrequency;
 
             return retval;
-        }
-
-        private bool PreconditionViolated(MethodInfo method, object[] objects)
-        {
-            var arguments = objects.Select(_ => _.ToString()).OrderByDescending(_ => _.Length).ToList();
-            var methodParameterNames = method.GetParameters().Select(_ => _.Name).ToList();
-            var precondition = method.GetCustomAttribute(typeof(Precondition)) as Precondition;
-            var computedExpression = precondition.Expression;
-
-            for (int index = 0; index < arguments.Count; index++)
-            {
-                var parameterName = methodParameterNames.SingleOrDefault(_ => _.Equals(arguments[index]));
-                if (parameterName == null)
-                {
-                    throw new InvalidRandoopContractException();
-                }
-
-                computedExpression = computedExpression.Replace(parameterName, arguments[index]);
-            }
-
-            return new ExpressionEvaluator().Evaluate<bool>(computedExpression) == false;
         }
 
         private void CheckContracts(ResultTuple ret, ref bool contractViolated, ref bool retval)

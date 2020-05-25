@@ -59,7 +59,7 @@ namespace Randoop
             exceptionPlans = new PlanDataBase("exceptionThrowingPlans", config.typematchingmode);
             observerPlans = new PlanDataBase("observerPlans", config.typematchingmode);
 
-            Plan.uniqueIdCounter = config.planstartid;
+            Plan.UniqueIdCounter = config.planstartid;
 
             switch (config.directoryStrategy)
             {
@@ -125,7 +125,7 @@ namespace Randoop
 
                     //TextWriter executionLog = new StreamWriter(config.executionLog);
                     TextWriter executionLog = new StreamWriter(config.executionLog + addCounter.ToString() + ".log"); //xiao.qu@us.abb.com changes
-                    executionLog.WriteLine("LASTPLANID:" + plan.uniqueId);
+                    executionLog.WriteLine("LASTPLANID:" + plan.UniqueId);
 
                     long startTime = 0;
                     Timer.QueryPerformanceCounter(ref startTime);

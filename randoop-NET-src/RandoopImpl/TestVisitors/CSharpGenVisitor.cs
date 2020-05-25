@@ -387,14 +387,14 @@ namespace Randoop
                     path.RemoveAt(path.Count - 1);
                     args.Add(nameManager.foobar.Get(paramPort));
                 }
-                b.Add(p.transformer.ToCSharpCode(new ReadOnlyCollection<string>(args), "dummy", useRandoopContracts));
+                b.Add(p.transformer.ToCSharpCode(new ReadOnlyCollection<string>(args), "dummy", useRandoopContracts, p.CanGenerateContractAssertion));
             }
 
             private void HandlePrimitive(Plan p, Collection<int> path)
             {
                 OutPortId newPort = new OutPortId(path, 0);
                 string newName = nameManager.foobar.Get(newPort);
-                b.Add(p.transformer.ToCSharpCode(new ReadOnlyCollection<string>(new List<string>()), newName, useRandoopContracts));
+                b.Add(p.transformer.ToCSharpCode(new ReadOnlyCollection<string>(new List<string>()), newName, useRandoopContracts, p.CanGenerateContractAssertion));
             }
 
             private void HandleDummy(Plan p, Collection<int> path)
@@ -416,7 +416,7 @@ namespace Randoop
                     path.RemoveAt(path.Count - 1);
                     args.Add(nameManager.foobar.Get(paramPort));
                 }
-                b.Add(p.transformer.ToCSharpCode(new ReadOnlyCollection<string>(args), nameManager.foobar.Get(newObjPort), useRandoopContracts));
+                b.Add(p.transformer.ToCSharpCode(new ReadOnlyCollection<string>(args), nameManager.foobar.Get(newObjPort), useRandoopContracts, p.CanGenerateContractAssertion));
 
             }
 
@@ -446,7 +446,7 @@ namespace Randoop
                     path.RemoveAt(path.Count - 1);
                     arguments.Add(nameManager.foobar.Get(paramPort));
                 }
-                b.Add(p.transformer.ToCSharpCode(new ReadOnlyCollection<string>(arguments), freshvar, useRandoopContracts));
+                b.Add(p.transformer.ToCSharpCode(new ReadOnlyCollection<string>(arguments), freshvar, useRandoopContracts, p.CanGenerateContractAssertion));
             }
 
 
@@ -464,7 +464,7 @@ namespace Randoop
                     path.RemoveAt(path.Count - 1);
                     args.Add(nameManager.foobar.Get(paramPort));
                 }
-                b.Add(p.transformer.ToCSharpCode(new ReadOnlyCollection<string>(args), nameManager.foobar.Get(newObjPort), useRandoopContracts));
+                b.Add(p.transformer.ToCSharpCode(new ReadOnlyCollection<string>(args), nameManager.foobar.Get(newObjPort), useRandoopContracts, p.CanGenerateContractAssertion));
             }
         }
     }

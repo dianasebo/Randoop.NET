@@ -12,6 +12,7 @@
 
 
 using Common;
+using Randoop.RandoopContracts;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -267,7 +268,7 @@ namespace Randoop
             this.fvalue = value;
         }
 
-        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts)
+        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts, ContractAssertion canGenerateContractAssertions)
         {
             StringBuilder b = new StringBuilder();
             b.Append(
@@ -281,10 +282,11 @@ namespace Randoop
         }
 
         public override bool Execute(out ResultTuple ret, ResultTuple[] results,
-            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContracts)
+            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContracts, out ContractAssertion canGenerateContractAssertion)
         {
             contractViolated = false;
             preconditionViolated = false;
+            canGenerateContractAssertion = new ContractAssertion();
 
             //if (forbidNull)
             //    Util.Assert(fvalue != null);

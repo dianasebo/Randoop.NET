@@ -92,7 +92,9 @@
     <Compile Include="Actions\PrimitiveValueCreator.cs" />
     <Compile Include="ContractAssertionGenerator.cs" />
     <Compile Include="ExecutionTimeTracking.cs" />
-    <Compile Include="InvalidRandoopContractException.cs" />
+    <Compile Include="RandoopContracts\ContractAssertion.cs" />
+    <Compile Include="RandoopContracts\InvalidRandoopContractException.cs" />
+    <Compile Include="RandoopContracts\RandoopContractsManager.cs" />
     <Compile Include="RegressionAssertionGenerator.cs" />
     <Compile Include="TestGenerator.cs" />
     <Compile Include="TestManager.cs" />

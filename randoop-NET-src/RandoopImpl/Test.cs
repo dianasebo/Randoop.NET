@@ -12,6 +12,7 @@
 
 
 using Common;
+using Randoop.RandoopContracts;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -50,12 +51,9 @@ namespace Randoop
         /// <summary>
         /// A unique number, different for every plan ever created.
         /// </summary>
-        public readonly long uniqueId;
+        public readonly long UniqueId;
 
-        // Counter that is incremented every time a new plan is created.
-        public static long uniqueIdCounter = 0;
-
-        private int treenodes;
+        public static long UniqueIdCounter = 0;
 
         /// <summary>
         /// The transfomer specifies the state change for this plan.
@@ -75,7 +73,11 @@ namespace Randoop
 
         public Exception exceptionThrown = null;
 
-        public string ClassName { get; set; }
+        public string ClassName;
+
+        public ContractAssertion CanGenerateContractAssertion;
+
+        private readonly int treeNodes;
 
         private readonly bool[] activeTupleElements;
 
@@ -89,10 +91,10 @@ namespace Randoop
                 b.Append(p.ToString());
                 b.AppendLine();
             }
-            b.Append("plan " + uniqueId + " transformer=" + transformer.ToString() + " parents=[ ");
+            b.Append("plan " + UniqueId + " transformer=" + transformer.ToString() + " parents=[ ");
             foreach (Plan p in parentPlans)
             {
-                b.Append(p.uniqueId + " ");
+                b.Append(p.UniqueId + " ");
             }
             b.Append("], inputs=[ ");
             foreach (ParameterChooser pc in parameterChoosers)
@@ -115,7 +117,7 @@ namespace Randoop
         {
             get
             {
-                return uniqueId;
+                return UniqueId;
             }
         }
 
@@ -319,7 +321,7 @@ namespace Randoop
         public Plan(Transformer transfomer, Plan[] parentPlans, ParameterChooser[] parameterChoosers)
         {
 
-            uniqueId = uniqueIdCounter++;
+            UniqueId = UniqueIdCounter++;
             transformer = transfomer;
             this.parentPlans = parentPlans;
 
@@ -330,9 +332,9 @@ namespace Randoop
             for (int i = 0; i < resultElementProperties.Length; i++)
                 resultElementProperties[i] = new ResultElementExecutionProperties();
 
-            treenodes = 1;
+            treeNodes = 1;
             foreach (Plan p in parentPlans)
-                treenodes += p.treenodes;
+                treeNodes += p.treeNodes;
         }
 
         /// <summary>
@@ -355,7 +357,7 @@ namespace Randoop
         /// <returns></returns>
         public bool ExecuteHelper(out ResultTuple executionResult, TextWriter executionLog,
             TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated,
-            bool forbidNull, bool useRandoopContracts)
+            bool forbidNull, bool useRandoopContracts, out ContractAssertion canGenerateContractAssertion)
         {
             // Execute parent plans
             ResultTuple[] results1 = new ResultTuple[parentPlans.Length];
@@ -363,7 +365,7 @@ namespace Randoop
             {
                 Plan plan = parentPlans[i];
                 ResultTuple tempResults;
-                if (!plan.ExecuteHelper(out tempResults, executionLog, debugLog, out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull, useRandoopContracts))
+                if (!plan.ExecuteHelper(out tempResults, executionLog, debugLog, out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull, useRandoopContracts, out canGenerateContractAssertion))
                 {
                     executionResult = null;
                     return false;
@@ -373,7 +375,7 @@ namespace Randoop
 
             //// Execute
             if (!transformer.Execute(out executionResult, results1, parameterChoosers, executionLog, debugLog,
-                out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull, useRandoopContracts))
+                out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull, useRandoopContracts, out canGenerateContractAssertion))
             {
                 executionResult = null;
                 return false;
@@ -401,7 +403,7 @@ namespace Randoop
             {
                 Plan plan = parentPlans[i];
                 ResultTuple tempResults;
-                if (!plan.ExecuteHelper(out tempResults, executionLog, debugLog, out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull, useRandoopContracts))
+                if (!plan.ExecuteHelper(out tempResults, executionLog, debugLog, out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull, useRandoopContracts, out CanGenerateContractAssertion))
                 {
                     executionResult = null;
                     return false;
@@ -411,7 +413,7 @@ namespace Randoop
 
             // Execute.
             if (!transformer.Execute(out executionResult, results1, parameterChoosers, executionLog, debugLog,
-                out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull, useRandoopContracts))
+                out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull, useRandoopContracts, out CanGenerateContractAssertion))
             {
                 executionResult = null;
                 return false;
@@ -513,7 +515,7 @@ namespace Randoop
 
         public double Weight()
         {
-            return 1.0 / (1.0 + treenodes);
+            return 1.0 / (1.0 + treeNodes);
         }
 
         #endregion

@@ -1,5 +1,6 @@
 ﻿using RandoopContracts;
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -8,16 +9,16 @@ namespace Randoop
     public class ContractAssertionGenerator
     {
         private readonly MethodInfo method;
-        private const string PostconditionComment = "\r\n\t\t\t// Contract assertion generated from postcondition\r\n";
-        private const string InvariantComment = "\r\n\t\t\t// Contract assertion generated from invariant\r\n";
-        private const string StaticInvariantComment = "\r\n\t\t\t// Contract assertion generated from static invariant\r\n";
+        private const string PostconditionComment = "\r\n\t\t\t//Contract assertion generated from postcondition\r\n";
+        private const string InvariantComment = "\r\n\t\t\t//Contract assertion generated from invariant\r\n";
+        private const string StaticInvariantComment = "\r\n\t\t\t//Contract assertion generated from static invariant\r\n";
 
         public ContractAssertionGenerator(MethodInfo method)
         {
             this.method = method;
         }
 
-        public string Compute(string methodCallResult, string methodCallReceiver)
+        public string Compute(string methodCallResult, string methodCallReceiver, RandoopContracts.ContractAssertion canGenerateContractAssertion)
         {
             var postcondition = method.GetCustomAttribute(typeof(Postcondition)) as Postcondition;
             var invariant = method.DeclaringType.GetCustomAttribute(typeof(Invariant)) as Invariant;
@@ -27,31 +28,31 @@ namespace Randoop
 
             if (MethodIsNonStaticAndNonVoid())
             {
-                AppendPostcondition(methodCallResult, postcondition, code);
-                AppendInvariant(methodCallReceiver, invariant, code);
-                AppendStaticInvariant(staticInvariant, code);
+                AppendPostcondition(canGenerateContractAssertion.FromPostcondition, methodCallResult, postcondition, code);
+                AppendInvariant(canGenerateContractAssertion.FromInvariant, methodCallReceiver, invariant, code);
+                AppendStaticInvariant(canGenerateContractAssertion.FromStaticInvariant, staticInvariant, code);
             }
             else if (MethodIsNonStaticAndVoid())
             {
-                AppendInvariant(methodCallReceiver, invariant, code);
-                AppendStaticInvariant(staticInvariant, code);
+                AppendInvariant(canGenerateContractAssertion.FromInvariant, methodCallReceiver, invariant, code);
+                AppendStaticInvariant(canGenerateContractAssertion.FromStaticInvariant, staticInvariant, code);
             }
             else if (MethodIsStaticAndNonVoid())
             {
-                AppendPostcondition(methodCallResult, postcondition, code);
-                AppendStaticInvariant(staticInvariant, code);
+                AppendPostcondition(canGenerateContractAssertion.FromPostcondition, methodCallResult, postcondition, code);
+                AppendStaticInvariant(canGenerateContractAssertion.FromStaticInvariant, staticInvariant, code);
             }
             else if (MethodIsStaticAndVoid())
             {
-                AppendStaticInvariant(staticInvariant, code);
+                AppendStaticInvariant(canGenerateContractAssertion.FromStaticInvariant, staticInvariant, code);
             }
 
             return code.ToString();
         }
 
-        private void AppendPostcondition(string methodCallResult, Postcondition postcondition, StringBuilder code)
+        private void AppendPostcondition(bool canGenerate, string methodCallResult, Postcondition postcondition, StringBuilder code)
         {
-            if (postcondition != null)
+            if (canGenerate)
             {
                 code.Append(PostconditionComment);
                 var expression = ComputePostconditionExpression(postcondition.Expression, methodCallResult);
@@ -59,9 +60,9 @@ namespace Randoop
             }
         }
 
-        private void AppendInvariant(string methodCallReceiver, Invariant invariant, StringBuilder code)
+        private void AppendInvariant(bool canGenerate, string methodCallReceiver, Invariant invariant, StringBuilder code)
         {
-            if (invariant != null)
+            if (canGenerate)
             {
                 code.Append(InvariantComment);
                 var expression = ComputeInvariantExpression(invariant.Expression, invariant.Fields, method.DeclaringType, methodCallReceiver);
@@ -69,9 +70,9 @@ namespace Randoop
             }
         }
 
-        private void AppendStaticInvariant(StaticInvariant staticInvariant, StringBuilder code)
+        private void AppendStaticInvariant(bool canGenerate, StaticInvariant staticInvariant, StringBuilder code)
         {
-            if (staticInvariant != null)
+            if (canGenerate)
             {
                 code.Append(StaticInvariantComment);
                 var expression = ComputeStaticInvariantExpression(staticInvariant.Expression, staticInvariant.Fields, method.DeclaringType);
@@ -91,17 +92,10 @@ namespace Randoop
 
         private string ComputeInvariantExpression(string expression, string[] fields, Type declaringType, string methodCallReceiver)
         {
-            foreach (var fieldName in fields)
+            var orderedFields = fields.OrderByDescending(_ => _.Length).ToList();
+            foreach (var fieldName in orderedFields)
             {
-                if (declaringType.GetField(fieldName) != null)
-                {
-                    expression = expression.Replace(fieldName, methodCallReceiver + "." + fieldName);
-                }
-                else
-                {
-                    return string.Empty;
-                }
-
+                expression = expression.Replace(fieldName, methodCallReceiver + "." + fieldName);
             }
 
             return expression;
@@ -109,17 +103,10 @@ namespace Randoop
 
         private string ComputeStaticInvariantExpression(string expression, string[] fields, Type declaringType)
         {
+            var orderedFields = fields.OrderByDescending(_ => _.Length).ToList();
             foreach (var fieldName in fields)
             {
-                if (declaringType.GetField(fieldName) != null)
-                {
-                    expression = expression.Replace(fieldName, declaringType + "." + fieldName);
-                }
-                else
-                {
-                    return string.Empty;
-                }
-
+                expression = expression.Replace(fieldName, declaringType + "." + fieldName);
             }
 
             return expression;
