@@ -15,7 +15,9 @@ using Common;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace Randoop
 {
@@ -88,17 +90,35 @@ namespace Randoop
         public bool OkToUse(MethodInfo m, out string message)
         {
             if (m == null) throw new ArgumentNullException("m");
-            string toCheckStr = m.DeclaringType.ToString() + "." + m.Name; //xiao.qu@us.abb.com
-            return OkToUseInternal(toCheckStr + "/" + m.ReturnType.ToString(), this.require_members, this.forbid_members, out message); //xiao.qu@us.abb.com
+            string toCheckStr = m.DeclaringType.ToString() + "." + m.Name + FormatParameterTypes(m.GetParameters().Select(_ => _.ParameterType).ToArray()) + "/" + m.ReturnType.ToString();
+            return OkToUseInternal(toCheckStr, this.require_members, this.forbid_members, out message); //xiao.qu@us.abb.com
             //return OkToUseInternal(m.ToString() + "/" + m.ReturnType.ToString(), this.require_members, this.forbid_members, out message); //xiao.qu@us.abb.com
         }
 
         public bool OkToUse(ConstructorInfo c, out string message)
         {
             if (c == null) throw new ArgumentNullException("c");
-            string toCheckStr = c.DeclaringType.ToString() + "." + c.ToString(); //xiao.qu@us.abb.com
+            string toCheckStr = c.DeclaringType.ToString() + "." + c.DeclaringType.Name + FormatParameterTypes(c.GetParameters().Select(_ => _.ParameterType).ToArray()) + "/"; //xiao.qu@us.abb.com
             return OkToUseInternal(toCheckStr, this.require_members, this.forbid_members, out message); //xiao.qu@us.abb.com
             //return OkToUseInternal(c.ToString(), this.require_members, this.forbid_members, out message); //xiao.qu@us.abb.com
+        }
+
+        private static string FormatParameterTypes(Type[] parameterTypes)
+        {
+            StringBuilder parameters = new StringBuilder();
+            parameters.Append("(");
+            if (parameterTypes.Length == 0)
+            {
+                parameters.Append(")");
+                return parameters.ToString();
+            }
+
+            for (int index = 0; index < parameterTypes.Length - 1; index++)
+            {
+                parameters.Append(parameterTypes[index].Name + ", ");
+            }
+            parameters.Append(parameterTypes[parameterTypes.Length - 1].Name + ")");
+            return parameters.ToString();
         }
 
         public bool OkToUse(Type t, out string message)
