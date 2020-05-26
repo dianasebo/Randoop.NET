@@ -355,7 +355,7 @@ namespace Randoop
                 }
                 else if (tr is ConstructorCallTransformer)
                 {
-                    t = (tr as ConstructorCallTransformer).fconstructor.DeclaringType;
+                    t = (tr as ConstructorCallTransformer).constructor.DeclaringType;
                     typesWithObjects[t] = true;
                     RandoopPrintFairStats("InitializeActiveMemberDependency", "[Constructor]" + t.ToString() + " class is ACTIVE");
 

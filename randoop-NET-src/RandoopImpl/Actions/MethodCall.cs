@@ -302,7 +302,7 @@ namespace Randoop
             var assertion = string.Empty;
             if (useRandoopContracts)
             {
-                assertion = new ContractAssertionGenerator(method).Compute(newValueName, arguments[0], canGenerateContractAssertion);
+                assertion = new ContractAssertionGenerator().Compute(method, newValueName, arguments[0], canGenerateContractAssertion);
             }
 
             if (string.IsNullOrEmpty(assertion))

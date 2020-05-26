@@ -25,7 +25,7 @@ namespace Randoop
 
     public class ConstructorCallTransformer : Transformer
     {
-        public readonly ConstructorInfo fconstructor;
+        public readonly ConstructorInfo constructor;
         public readonly ConstructorInfo coverageInfo;
 
         public int timesExecuted = 0;
@@ -48,7 +48,7 @@ namespace Randoop
         {
             get
             {
-                return fconstructor.DeclaringType.FullName;
+                return constructor.DeclaringType.FullName;
             }
         }
 
@@ -76,7 +76,7 @@ namespace Randoop
         {
             get
             {
-                ParameterInfo[] parameters = fconstructor.GetParameters();
+                ParameterInfo[] parameters = constructor.GetParameters();
                 Type[] retval = new Type[parameters.Length];
                 for (int i = 0; i < parameters.Length; i++)
                     retval[i] = parameters[i].ParameterType;
@@ -86,7 +86,7 @@ namespace Randoop
 
         public override string ToString()
         {
-            return fconstructor.DeclaringType.FullName + " constructor " + fconstructor.ToString();
+            return constructor.DeclaringType.FullName + " constructor " + constructor.ToString();
         }
 
         public override bool Equals(object obj)
@@ -94,12 +94,12 @@ namespace Randoop
             ConstructorCallTransformer c = obj as ConstructorCallTransformer;
             if (c == null)
                 return false;
-            return (this.fconstructor.Equals(c.fconstructor));
+            return (this.constructor.Equals(c.constructor));
         }
 
         public override int GetHashCode()
         {
-            return fconstructor.GetHashCode();
+            return constructor.GetHashCode();
         }
 
 
@@ -107,7 +107,7 @@ namespace Randoop
         private ConstructorCallTransformer(ConstructorInfo constructor)
         {
             Util.Assert(constructor is ConstructorInfo);
-            this.fconstructor = constructor as ConstructorInfo;
+            this.constructor = constructor as ConstructorInfo;
             this.coverageInfo = constructor;
 
             ParameterInfo[] pis = constructor.GetParameters();
@@ -128,28 +128,38 @@ namespace Randoop
             }
         }
 
-        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts, ContractAssertion canGenerateContractAssertions)
+        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts, ContractAssertion canGenerateContractAssertion
+            )
         {
             // TODO assert that arguments.Count is correct.
-            StringBuilder b = new StringBuilder();
+            StringBuilder code = new StringBuilder();
             string retType =
-                SourceCodePrinting.ToCodeString(fconstructor.DeclaringType);
-            b.Append(retType + " " + newValueName + " = ");
-            b.Append("new " + SourceCodePrinting.ToCodeString(fconstructor.DeclaringType));
-            b.Append("(");
+                SourceCodePrinting.ToCodeString(constructor.DeclaringType);
+            code.Append(retType + " " + newValueName + " = ");
+            code.Append("new " + SourceCodePrinting.ToCodeString(constructor.DeclaringType));
+            code.Append("(");
             for (int i = 0; i < arguments.Count; i++)
             {
                 if (i > 0)
-                    b.Append(" , ");
+                    code.Append(" , ");
 
                 // Cast.
-                b.Append("(");
-                b.Append(SourceCodePrinting.ToCodeString(ParameterTypes[i]));
-                b.Append(")");
-                b.Append(arguments[i]);
+                code.Append("(");
+                code.Append(SourceCodePrinting.ToCodeString(ParameterTypes[i]));
+                code.Append(")");
+                code.Append(arguments[i]);
             }
-            b.Append(");");
-            return b.ToString();
+            code.Append(");");
+
+            var assertion = string.Empty;
+            if (useRandoopContracts)
+            {
+                assertion = new ContractAssertionGenerator().Compute(constructor, newValueName, canGenerateContractAssertion);
+            }
+
+            code.Append(assertion);
+
+            return code.ToString();
         }
 
         ////xiao.qu@us.abb.com adds for capture return value for regression assertion
@@ -168,16 +178,33 @@ namespace Randoop
             preconditionViolated = false;
             canGenerateContractAssertion = new ContractAssertion();
 
-            this.timesExecuted++;
             long startTime = 0;
             Timer.QueryPerformanceCounter(ref startTime);
 
-            object[] objects = new object[fconstructor.GetParameters().Length];
+            object[] objects = new object[constructor.GetParameters().Length];
             // Get the actual objects from the results using parameterIndices;
-            for (int i = 0; i < fconstructor.GetParameters().Length; i++)
+            for (int i = 0; i < constructor.GetParameters().Length; i++)
             {
                 Plan.ParameterChooser pair = parameterMap[i];
                 objects[i] = results[pair.planIndex].tuple[pair.resultIndex];
+            }
+
+            preconditionViolated = false;
+            if (useRandoopContracts)
+            {
+                try
+                {
+                    preconditionViolated = new RandoopContractsManager().PreconditionViolated(constructor, objects);
+                }
+                catch (InvalidRandoopContractException) { } //precondition is invalid, ignore it and proceed with execution
+
+                if (preconditionViolated)
+                {
+                    ret = null;
+                    exceptionThrown = null;
+                    contractViolated = false;
+                    return false;
+                }
             }
 
             if (forbidNull)
@@ -187,12 +214,13 @@ namespace Randoop
             object newObject = null;
 
             CodeExecutor.CodeToExecute call =
-                delegate () { newObject = fconstructor.Invoke(objects); };
+                delegate () { newObject = constructor.Invoke(objects); };
 
-            executionLog.WriteLine("execute constructor " + this.fconstructor.DeclaringType);
-            debugLog.WriteLine("execute constructor " + this.fconstructor.DeclaringType); //xiao.qu@us.abb.com adds
+            executionLog.WriteLine("execute constructor " + this.constructor.DeclaringType);
+            debugLog.WriteLine("execute constructor " + this.constructor.DeclaringType); //xiao.qu@us.abb.com adds
             executionLog.Flush();
 
+            timesExecuted++;
             bool retval = true;
             if (!CodeExecutor.ExecuteReflectionCall(call, debugLog, out exceptionThrown))
             {
@@ -210,7 +238,7 @@ namespace Randoop
                 {
                     PlanManager.numDistinctContractViolPlans++;
 
-                    KeyValuePair<MethodBase, Type> k = new KeyValuePair<MethodBase, Type>(this.fconstructor, exceptionThrown.GetType());
+                    KeyValuePair<MethodBase, Type> k = new KeyValuePair<MethodBase, Type>(this.constructor, exceptionThrown.GetType());
                     if (!exnViolatingMethods.ContainsKey(k))
                     {
                         PlanManager.numContractViolatingPlans++;
@@ -218,15 +246,15 @@ namespace Randoop
                     }
 
                     //add this class to the faulty classes
-                    contractExnViolatingClasses[fconstructor.GetType()] = true;
-                    contractExnViolatingMethods[fconstructor] = true;
+                    contractExnViolatingClasses[constructor.GetType()] = true;
+                    contractExnViolatingMethods[constructor] = true;
                 }
 
                 executionLog.WriteLine("execution failure."); //xiao.qu@us.abb.com adds
                 return false;
             }
             else
-                ret = new ResultTuple(fconstructor, newObject, objects);
+                ret = new ResultTuple(constructor, newObject, objects);
 
 
             //check if the objects in the output tuple violated basic contracts
@@ -241,7 +269,7 @@ namespace Randoop
                     if (Util.ViolatesContracts(o, out count, out toStrViol, out hashCodeViol, out equalsViol))
                     {
                         contractViolated = true;
-                        contractExnViolatingMethods[fconstructor] = true;
+                        contractExnViolatingMethods[constructor] = true;
 
                         bool newcontractViolation = false;
                         PlanManager.numDistinctContractViolPlans++;
@@ -249,35 +277,37 @@ namespace Randoop
                         if (toStrViol)
                         {
 
-                            if (!toStrViolatingMethods.ContainsKey(fconstructor))
+                            if (!toStrViolatingMethods.ContainsKey(constructor))
                                 newcontractViolation = true;
-                            toStrViolatingMethods[fconstructor] = true;
+                            toStrViolatingMethods[constructor] = true;
                         }
                         if (hashCodeViol)
                         {
-                            if (!hashCodeViolatingMethods.ContainsKey(fconstructor))
+                            if (!hashCodeViolatingMethods.ContainsKey(constructor))
                                 newcontractViolation = true;
 
-                            hashCodeViolatingMethods[fconstructor] = true;
+                            hashCodeViolatingMethods[constructor] = true;
                         }
                         if (equalsViol)
                         {
-                            if (!equalsViolatingMethods.ContainsKey(fconstructor))
+                            if (!equalsViolatingMethods.ContainsKey(constructor))
                                 newcontractViolation = true;
 
-                            equalsViolatingMethods[fconstructor] = true;
+                            equalsViolatingMethods[constructor] = true;
                         }
 
                         if (newcontractViolation)
                             PlanManager.numContractViolatingPlans++;
 
                         //add this class to the faulty classes
-                        contractExnViolatingClasses[fconstructor.DeclaringType] = true;
+                        contractExnViolatingClasses[constructor.DeclaringType] = true;
 
                         retval = false;
                     }
 
                 }
+
+                canGenerateContractAssertion = new RandoopContractsManager().ValidateAssertionContracts(constructor, newObject);
             }
 
             long endTime = 0;
@@ -294,7 +324,7 @@ namespace Randoop
         {
             get
             {
-                return this.fconstructor.DeclaringType.Namespace;
+                return this.constructor.DeclaringType.Namespace;
             }
         }
 
@@ -302,7 +332,7 @@ namespace Randoop
         {
             get
             {
-                return ReflectionUtils.GetRelatedAssemblies(this.fconstructor);
+                return ReflectionUtils.GetRelatedAssemblies(this.constructor);
             }
         }
 

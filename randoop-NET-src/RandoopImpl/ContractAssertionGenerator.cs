@@ -1,4 +1,5 @@
-﻿using RandoopContracts;
+﻿using Randoop.RandoopContracts;
+using RandoopContracts;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -8,17 +9,11 @@ namespace Randoop
 {
     public class ContractAssertionGenerator
     {
-        private readonly MethodInfo method;
         private const string PostconditionComment = "\r\n\t\t\t//Contract assertion generated from postcondition\r\n";
         private const string InvariantComment = "\r\n\t\t\t//Contract assertion generated from invariant\r\n";
         private const string StaticInvariantComment = "\r\n\t\t\t//Contract assertion generated from static invariant\r\n";
 
-        public ContractAssertionGenerator(MethodInfo method)
-        {
-            this.method = method;
-        }
-
-        public string Compute(string methodCallResult, string methodCallReceiver, RandoopContracts.ContractAssertion canGenerateContractAssertion)
+        public string Compute(MethodInfo method, string methodCallResult, string methodCallReceiver, RandoopContracts.ContractAssertion canGenerateContractAssertion)
         {
             var postcondition = method.GetCustomAttribute(typeof(Postcondition)) as Postcondition;
             var invariant = method.DeclaringType.GetCustomAttribute(typeof(Invariant)) as Invariant;
@@ -26,25 +21,25 @@ namespace Randoop
 
             StringBuilder code = new StringBuilder();
 
-            if (MethodIsNonStaticAndNonVoid())
+            if (MethodIsNonStaticAndNonVoid(method))
             {
                 AppendPostcondition(canGenerateContractAssertion.FromPostcondition, methodCallResult, postcondition, code);
-                AppendInvariant(canGenerateContractAssertion.FromInvariant, methodCallReceiver, invariant, code);
-                AppendStaticInvariant(canGenerateContractAssertion.FromStaticInvariant, staticInvariant, code);
+                AppendInvariant(method, canGenerateContractAssertion.FromInvariant, methodCallReceiver, invariant, code);
+                AppendStaticInvariant(method, canGenerateContractAssertion.FromStaticInvariant, staticInvariant, code);
             }
-            else if (MethodIsNonStaticAndVoid())
+            else if (MethodIsNonStaticAndVoid(method))
             {
-                AppendInvariant(canGenerateContractAssertion.FromInvariant, methodCallReceiver, invariant, code);
-                AppendStaticInvariant(canGenerateContractAssertion.FromStaticInvariant, staticInvariant, code);
+                AppendInvariant(method, canGenerateContractAssertion.FromInvariant, methodCallReceiver, invariant, code);
+                AppendStaticInvariant(method, canGenerateContractAssertion.FromStaticInvariant, staticInvariant, code);
             }
-            else if (MethodIsStaticAndNonVoid())
+            else if (MethodIsStaticAndNonVoid(method))
             {
                 AppendPostcondition(canGenerateContractAssertion.FromPostcondition, methodCallResult, postcondition, code);
-                AppendStaticInvariant(canGenerateContractAssertion.FromStaticInvariant, staticInvariant, code);
+                AppendStaticInvariant(method, canGenerateContractAssertion.FromStaticInvariant, staticInvariant, code);
             }
-            else if (MethodIsStaticAndVoid())
+            else if (MethodIsStaticAndVoid(method))
             {
-                AppendStaticInvariant(canGenerateContractAssertion.FromStaticInvariant, staticInvariant, code);
+                AppendStaticInvariant(method, canGenerateContractAssertion.FromStaticInvariant, staticInvariant, code);
             }
 
             return code.ToString();
@@ -60,7 +55,7 @@ namespace Randoop
             }
         }
 
-        private void AppendInvariant(bool canGenerate, string methodCallReceiver, Invariant invariant, StringBuilder code)
+        private void AppendInvariant(MethodBase method, bool canGenerate, string methodCallReceiver, Invariant invariant, StringBuilder code)
         {
             if (canGenerate)
             {
@@ -70,7 +65,7 @@ namespace Randoop
             }
         }
 
-        private void AppendStaticInvariant(bool canGenerate, StaticInvariant staticInvariant, StringBuilder code)
+        private void AppendStaticInvariant(MethodBase method, bool canGenerate, StaticInvariant staticInvariant, StringBuilder code)
         {
             if (canGenerate)
             {
@@ -112,24 +107,38 @@ namespace Randoop
             return expression;
         }
 
-        private bool MethodIsNonStaticAndNonVoid()
+        private bool MethodIsNonStaticAndNonVoid(MethodInfo method)
         {
             return method.IsStatic == false && method.ReturnType.Equals(typeof(void)) == false;
         }
 
-        private bool MethodIsNonStaticAndVoid()
+        private bool MethodIsNonStaticAndVoid(MethodInfo method)
         {
             return method.IsStatic == false && method.ReturnType.Equals(typeof(void));
         }
 
-        private bool MethodIsStaticAndNonVoid()
+        private bool MethodIsStaticAndNonVoid(MethodInfo method)
         {
             return method.IsStatic && method.ReturnType.Equals(typeof(void)) == false;
         }
 
-        private bool MethodIsStaticAndVoid()
+        private bool MethodIsStaticAndVoid(MethodInfo method)
         {
             return method.IsStatic && method.ReturnType.Equals(typeof(void));
+        }
+
+        internal string Compute(ConstructorInfo constructor, string newValueName, ContractAssertion canGenerateContractAssertion)
+        {
+            var postcondition = constructor.GetCustomAttribute(typeof(Postcondition)) as Postcondition;
+            var invariant = constructor.DeclaringType.GetCustomAttribute(typeof(Invariant)) as Invariant;
+            var staticInvariant = constructor.DeclaringType.GetCustomAttribute(typeof(StaticInvariant)) as StaticInvariant;
+
+            StringBuilder code = new StringBuilder();
+            AppendPostcondition(canGenerateContractAssertion.FromPostcondition, newValueName, postcondition, code);
+            AppendInvariant(constructor, canGenerateContractAssertion.FromInvariant, newValueName, invariant, code);
+            AppendStaticInvariant(constructor, canGenerateContractAssertion.FromStaticInvariant, staticInvariant, code);
+
+            return code.ToString();
         }
     }
 }

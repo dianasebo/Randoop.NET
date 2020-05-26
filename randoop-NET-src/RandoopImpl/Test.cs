@@ -320,7 +320,7 @@ namespace Randoop
         /// <param name="resultTypes">The types (and number of) results that executing this plan yields.</param>
         public Plan(Transformer transfomer, Plan[] parentPlans, ParameterChooser[] parameterChoosers)
         {
-
+            CanGenerateContractAssertion = new ContractAssertion();
             UniqueId = UniqueIdCounter++;
             transformer = transfomer;
             this.parentPlans = parentPlans;
