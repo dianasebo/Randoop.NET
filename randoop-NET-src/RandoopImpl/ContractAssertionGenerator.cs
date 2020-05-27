@@ -13,7 +13,7 @@ namespace Randoop
         private const string InvariantComment = "\r\n\t\t\t//Contract assertion generated from invariant\r\n";
         private const string StaticInvariantComment = "\r\n\t\t\t//Contract assertion generated from static invariant\r\n";
 
-        public string Compute(MethodInfo method, string methodCallResult, string methodCallReceiver, RandoopContracts.ContractAssertion canGenerateContractAssertion)
+        public string Compute(MethodInfo method, string methodCallResult, string methodCallReceiver, ContractAssertion canGenerateContractAssertion)
         {
             var postcondition = method.GetCustomAttribute(typeof(Postcondition)) as Postcondition;
             var invariant = method.DeclaringType.GetCustomAttribute(typeof(Invariant)) as Invariant;

@@ -5,7 +5,7 @@
     </StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <StartArguments>/configfiles:"c:\users\sebod\appdata\local\microsoft\visualstudio\16.0_6f1efaa4exp\extensions\diana loredana sebo\randoopextension\1.0\Randoop\config_files" /noexplorer /timelimit:30 /restart:30 /outputnormal /allownull /outputdir:"E:\Licenta\ClassLibraryForTest\bin\Debug\netstandard2.0\randoop_output" "E:\Licenta\ClassLibraryForTest\bin\Debug\netstandard2.0\ClassLibraryForTest.dll"</StartArguments>
+    <StartArguments>/configfiles:"c:\users\sebod\appdata\local\microsoft\visualstudio\16.0_6f1efaa4exp\extensions\diana loredana sebo\randoopextension\1.0\Randoop\config_files" /noexplorer /timelimit:30 /restart:30 /outputnormal /directorystrategy:ClassifyingByClass /outputdir:"E:\Licenta\ClassLibraryForTest\bin\Debug\netstandard2.0\randoop_output" "E:\Licenta\ClassLibraryForTest\bin\Debug\netstandard2.0\ClassLibraryForTest.dll"</StartArguments>
   </PropertyGroup>
   <PropertyGroup>
     <PublishUrlHistory />

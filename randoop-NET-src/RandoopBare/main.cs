@@ -155,6 +155,7 @@ namespace RandoopBare
             catch (Exception e)
             {
                 Logger.Error("Explorer raised exception {0}", e.ToString());
+                throw;
             }
         }
 
