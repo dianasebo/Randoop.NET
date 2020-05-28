@@ -67,6 +67,9 @@
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.7.0\lib\net45\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="RandoopContracts, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RandoopContracts.1.0.0\lib\netstandard2.0\RandoopContracts.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -103,10 +106,6 @@
     <Compile Include="Actions\Action.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\randoop-contracts\RandoopContracts\RandoopContracts.csproj">
-      <Project>{B0E8F514-1D51-4138-87C0-0A71BCDD8768}</Project>
-      <Name>RandoopContracts</Name>
-    </ProjectReference>
     <ProjectReference Include="..\RandoopCommon\RandoopCommon.csproj">
       <Project>{D5B45A6E-B8DA-4A4B-B08B-4C1EA24BEB1B}</Project>
       <Name>RandoopCommon</Name>

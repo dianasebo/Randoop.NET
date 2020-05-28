@@ -21,8 +21,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostBuild", "PostBuild\Post
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandoopImplTest", "RandoopImplTest\RandoopImplTest.csproj", "{BF18C156-7669-4AC6-90A0-2D84F9F3D147}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandoopContracts", "..\..\randoop-contracts\RandoopContracts\RandoopContracts.csproj", "{B0E8F514-1D51-4138-87C0-0A71BCDD8768}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,10 +55,6 @@ Global
 		{BF18C156-7669-4AC6-90A0-2D84F9F3D147}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF18C156-7669-4AC6-90A0-2D84F9F3D147}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF18C156-7669-4AC6-90A0-2D84F9F3D147}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B0E8F514-1D51-4138-87C0-0A71BCDD8768}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B0E8F514-1D51-4138-87C0-0A71BCDD8768}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B0E8F514-1D51-4138-87C0-0A71BCDD8768}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B0E8F514-1D51-4138-87C0-0A71BCDD8768}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
