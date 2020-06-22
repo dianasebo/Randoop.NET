@@ -112,7 +112,7 @@ namespace Randoop
 
             if (args[0].Equals("reduce"))
             {
-                HandleReduction(args, Reducer.Reduce);
+                HandleReduction(args, EquivalenceBasedReducer.Reduce);
             }
 
             if (args[0].Equals("reduce2"))
@@ -196,7 +196,7 @@ namespace Randoop
 
             //CheckAssembliesExist(args);
 
-            int randomseed = 0;
+            int randomseed = DateTime.Now.GetHashCode();
             if (args.RandomSeed != null)
             {
                 int.TryParse(args.RandomSeed, out randomseed);

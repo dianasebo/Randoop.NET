@@ -19,13 +19,12 @@ using System.Linq;
 namespace Randoop
 {
 
-    public interface ITestFileWriter
+    public interface TestFileWriter
     {
         void Move(Plan p, Exception exceptionThrown);
         void MoveNormalTermination(Plan p);
         void Remove(Plan p);
         void WriteTest(Plan p);
-        void RemoveTempDir();
     }
 
     internal class TestWriterHelperMethods
@@ -53,12 +52,12 @@ namespace Randoop
     /// A test writer that writes all tests (plans) to the same
     /// directory.
     /// </summary>
-    public class SingleDirTestWriter : ITestFileWriter
+    public class SingleDirectoryTestFileWriter : TestFileWriter
     {
         private DirectoryInfo outputDir;
         private bool useRandoopContracts;
 
-        public SingleDirTestWriter(DirectoryInfo di, bool useRandoopContracts)
+        public SingleDirectoryTestFileWriter(DirectoryInfo di, bool useRandoopContracts)
         {
             outputDir = di;
             if (!outputDir.Exists)
@@ -98,14 +97,9 @@ namespace Randoop
             string fileName = outputDir + "\\" + className + ".cs";
             TestWriterHelperMethods.WritePlanToFile(plan, fileName, null, className, useRandoopContracts);
         }
-
-        public void RemoveTempDir()
-        {
-            // No temp dir to remove.
-        }
     }
 
-    public class ClassifyingByBehaviorTestFileWriter : ITestFileWriter
+    public class ClassifyingByBehaviorTestFileWriter : TestFileWriter
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -199,14 +193,9 @@ namespace Randoop
             string oldTestFileName = outputDir + "\\" + "temp" + "\\" + testClassName + ".cs";
             new FileInfo(oldTestFileName).Delete();
         }
-
-        public void RemoveTempDir()
-        {
-            new DirectoryInfo(outputDir + "\\temp").Delete(true);
-        }
     }
 
-    public class ClassifyingByClassTestFileWriter : ITestFileWriter
+    public class ClassifyingByClassTestFileWriter : TestFileWriter
     {
         private DirectoryInfo outputDir;
         private bool useRandoopContracts;
@@ -250,11 +239,6 @@ namespace Randoop
             string testClassName = p.ClassName + p.TestCaseId;
             string oldTestFileName = outputDir + "\\" + "temp" + "\\" + testClassName + ".cs";
             new FileInfo(oldTestFileName).Delete();
-        }
-
-        public void RemoveTempDir()
-        {
-            new DirectoryInfo(outputDir + "\\temp").Delete(true);
         }
 
         public void WriteTest(Plan p)

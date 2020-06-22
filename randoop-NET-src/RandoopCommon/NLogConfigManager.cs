@@ -10,7 +10,7 @@ namespace Common
             var config = new NLog.Config.LoggingConfiguration();
 
             var currentDate = DateTime.Now.ToString("dd.MM-HH.mm");
-            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "randoop_output/log/" + currentDate + ".txt" };
+            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "C:\\Users\\sebod\\Desktop\\randoop_output\\log" + currentDate + ".txt" };
 
             config.AddRule(LogLevel.Debug, LogLevel.Fatal, logfile);
 

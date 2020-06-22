@@ -76,7 +76,7 @@ namespace Randoop
         {
         }
 
-        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts, ContractAssertion canGenerateContractAssertions)
+        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts, ContractState canGenerateContractAssertions)
         {
             Util.Assert(arguments.Count == this.ParameterTypes.Length);
 
@@ -98,11 +98,11 @@ namespace Randoop
         //}
 
         public override bool Execute(out ResultTuple ret, ResultTuple[] parameters,
-            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContracts, out ContractAssertion canGenerateContractAssertion)
+            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContracts, out ContractState contractStates)
         {
             contractViolated = false;
             preconditionViolated = false;
-            canGenerateContractAssertion = new ContractAssertion();
+            contractStates = new ContractState();
 
             ArrayList a = new ArrayList();
 

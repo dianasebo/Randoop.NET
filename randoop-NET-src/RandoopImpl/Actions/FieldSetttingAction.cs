@@ -100,7 +100,7 @@ namespace Randoop
             return this.ffield.GetHashCode();
         }
 
-        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts, ContractAssertion canGenerateContractAssertions)
+        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts, ContractState canGenerateContractAssertions)
         {
             return
                 arguments[0]
@@ -122,11 +122,11 @@ namespace Randoop
 
 
         public override bool Execute(out ResultTuple ret, ResultTuple[] results,
-            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContracts, out ContractAssertion canGenerateContractAssertion)
+            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContracts, out ContractState contractStates)
         {
             contractViolated = false;
             preconditionViolated = false;
-            canGenerateContractAssertion = new ContractAssertion();
+            contractStates = new ContractState();
 
             Util.Assert(parameterMap.Length == 2);
 

@@ -5,7 +5,7 @@ using System.IO;
 
 namespace Common
 {
-    public static class Reducer
+    public static class EquivalenceBasedReducer
     {
         public static Collection<FileInfo> Reduce(Collection<FileInfo> tests)
         {

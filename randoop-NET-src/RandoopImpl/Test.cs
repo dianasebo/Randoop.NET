@@ -75,7 +75,7 @@ namespace Randoop
 
         public string ClassName;
 
-        public ContractAssertion CanGenerateContractAssertion;
+        public ContractState CanGenerateContractAssertion;
 
         private readonly int treeNodes;
 
@@ -320,7 +320,7 @@ namespace Randoop
         /// <param name="resultTypes">The types (and number of) results that executing this plan yields.</param>
         public Plan(Transformer transfomer, Plan[] parentPlans, ParameterChooser[] parameterChoosers)
         {
-            CanGenerateContractAssertion = new ContractAssertion();
+            CanGenerateContractAssertion = new ContractState();
             UniqueId = UniqueIdCounter++;
             transformer = transfomer;
             this.parentPlans = parentPlans;
@@ -357,7 +357,7 @@ namespace Randoop
         /// <returns></returns>
         public bool ExecuteHelper(out ResultTuple executionResult, TextWriter executionLog,
             TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated,
-            bool forbidNull, bool useRandoopContracts, out ContractAssertion canGenerateContractAssertion)
+            bool forbidNull, bool useRandoopContracts, out ContractState contractStates)
         {
             // Execute parent plans
             ResultTuple[] results1 = new ResultTuple[parentPlans.Length];
@@ -365,7 +365,7 @@ namespace Randoop
             {
                 Plan plan = parentPlans[i];
                 ResultTuple tempResults;
-                if (!plan.ExecuteHelper(out tempResults, executionLog, debugLog, out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull, useRandoopContracts, out canGenerateContractAssertion))
+                if (!plan.ExecuteHelper(out tempResults, executionLog, debugLog, out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull, useRandoopContracts, out contractStates))
                 {
                     executionResult = null;
                     return false;
@@ -375,7 +375,7 @@ namespace Randoop
 
             //// Execute
             if (!transformer.Execute(out executionResult, results1, parameterChoosers, executionLog, debugLog,
-                out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull, useRandoopContracts, out canGenerateContractAssertion))
+                out preconditionViolated, out exceptionThrown, out contractViolated, forbidNull, useRandoopContracts, out contractStates))
             {
                 executionResult = null;
                 return false;

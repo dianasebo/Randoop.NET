@@ -47,7 +47,7 @@ namespace Randoop
         public readonly PlanDataBase builderPlans;
         public readonly PlanDataBase observerPlans;
 
-        private ITestFileWriter testFileWriter;
+        private TestFileWriter testFileWriter;
 
         public static int numContractViolatingPlans = 0; //to count number of exception + contract violating plans
         public static int numDistinctContractViolPlans = 0; // counts the # of plans that violates contract (may violate same contract)
@@ -64,7 +64,7 @@ namespace Randoop
             switch (config.directoryStrategy)
             {
                 case DirectoryStrategy.Single:
-                    testFileWriter = new SingleDirTestWriter(new DirectoryInfo(config.outputdir), config.useRandoopContracts);
+                    testFileWriter = new SingleDirectoryTestFileWriter(new DirectoryInfo(config.outputdir), config.useRandoopContracts);
                     break;
                 case DirectoryStrategy.ClassifyingByBehavior:
                     testFileWriter = new ClassifyingByBehaviorTestFileWriter(new DirectoryInfo(config.outputdir), config.useRandoopContracts);
@@ -146,6 +146,7 @@ namespace Randoop
                         if (preconditionViolated)
                         {
                             stats.ExecutionResult("precondition violated");
+                            testFileWriter.Remove(plan);
                         }
 
                         if (exceptionThrown != null)

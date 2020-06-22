@@ -24,16 +24,16 @@ namespace RandoopImplTest.RandoopContracts
             receiver = new PostconditionTestClass();
 
             method = typeof(PostconditionTestClass).GetMethod("NoPostconditionMethod");
-            Assert.IsFalse(contractsManager.ValidateAssertionContracts(method, receiver, returnValue).FromPostcondition);
+            Assert.AreEqual(ContractStateEnum.Missing, contractsManager.ValidateAssertionContracts(method, receiver, returnValue).PostconditionState);
 
             method = typeof(PostconditionTestClass).GetMethod("InvalidPostconditionMethod_NotBool");
-            Assert.IsFalse(contractsManager.ValidateAssertionContracts(method, receiver, returnValue).FromPostcondition);
+            Assert.AreEqual(ContractStateEnum.Invalid, contractsManager.ValidateAssertionContracts(method, receiver, returnValue).PostconditionState);
 
             method = typeof(PostconditionTestClass).GetMethod("InvalidPostconditionMethod_NoOutput");
-            Assert.IsFalse(contractsManager.ValidateAssertionContracts(method, receiver, returnValue).FromPostcondition);
+            Assert.AreEqual(ContractStateEnum.Invalid, contractsManager.ValidateAssertionContracts(method, receiver, returnValue).PostconditionState);
 
             method = typeof(PostconditionTestClass).GetMethod("ValidPostconditionMethod");
-            Assert.IsTrue(contractsManager.ValidateAssertionContracts(method, receiver, returnValue).FromPostcondition);
+            Assert.AreEqual(ContractStateEnum.Ok, contractsManager.ValidateAssertionContracts(method, receiver, returnValue).PostconditionState);
         }
 
         [TestMethod]
@@ -41,19 +41,19 @@ namespace RandoopImplTest.RandoopContracts
         {
             receiver = new NoInvariantTestClass();
             method = typeof(NoInvariantTestClass).GetMethod("Method");
-            Assert.IsFalse(contractsManager.ValidateAssertionContracts(method, receiver, returnValue).FromInvariant);
+            Assert.AreEqual(ContractStateEnum.Missing, contractsManager.ValidateAssertionContracts(method, receiver, returnValue).InvariantState);
 
             receiver = new InvalidInvariantTestClass();
             method = typeof(InvalidInvariantTestClass).GetMethod("Method");
-            Assert.IsFalse(contractsManager.ValidateAssertionContracts(method, receiver, returnValue).FromInvariant);
+            Assert.AreEqual(ContractStateEnum.Invalid, contractsManager.ValidateAssertionContracts(method, receiver, returnValue).InvariantState);
 
             receiver = new InvalidInvariantTestClass_AccessingPrivates();
             method = typeof(InvalidInvariantTestClass_AccessingPrivates).GetMethod("Method");
-            Assert.IsFalse(contractsManager.ValidateAssertionContracts(method, receiver, returnValue).FromInvariant);
+            Assert.AreEqual(ContractStateEnum.Invalid, contractsManager.ValidateAssertionContracts(method, receiver, returnValue).InvariantState);
 
             receiver = new ValidInvariantTestClass();
             method = typeof(ValidInvariantTestClass).GetMethod("Method");
-            Assert.IsTrue(contractsManager.ValidateAssertionContracts(method, receiver, returnValue).FromInvariant);
+            Assert.AreEqual(ContractStateEnum.Ok, contractsManager.ValidateAssertionContracts(method, receiver, returnValue).InvariantState);
         }
 
         [TestMethod]
@@ -61,23 +61,23 @@ namespace RandoopImplTest.RandoopContracts
         {
             receiver = new NoInvariantTestClass();
             method = typeof(NoInvariantTestClass).GetMethod("Method");
-            Assert.IsFalse(contractsManager.ValidateAssertionContracts(method, receiver, returnValue).FromStaticInvariant);
+            Assert.AreEqual(ContractStateEnum.Missing, contractsManager.ValidateAssertionContracts(method, receiver, returnValue).StaticInvariantState);
 
             receiver = new InvalidInvariantTestClass();
             method = typeof(InvalidInvariantTestClass).GetMethod("Method");
-            Assert.IsFalse(contractsManager.ValidateAssertionContracts(method, receiver, returnValue).FromStaticInvariant);
+            Assert.AreEqual(ContractStateEnum.Invalid, contractsManager.ValidateAssertionContracts(method, receiver, returnValue).StaticInvariantState);
 
             receiver = new InvalidInvariantTestClass_AccessingPrivates();
             method = typeof(InvalidInvariantTestClass_AccessingPrivates).GetMethod("Method");
-            Assert.IsFalse(contractsManager.ValidateAssertionContracts(method, receiver, returnValue).FromStaticInvariant);
+            Assert.AreEqual(ContractStateEnum.Invalid, contractsManager.ValidateAssertionContracts(method, receiver, returnValue).StaticInvariantState);
 
             receiver = new InvalidStaticInvariant_AccessingInstanceFields();
             method = typeof(InvalidStaticInvariant_AccessingInstanceFields).GetMethod("Method");
-            Assert.IsFalse(contractsManager.ValidateAssertionContracts(method, receiver, returnValue).FromStaticInvariant);
+            Assert.AreEqual(ContractStateEnum.Invalid, contractsManager.ValidateAssertionContracts(method, receiver, returnValue).StaticInvariantState);
 
             receiver = new ValidInvariantTestClass();
             method = typeof(ValidInvariantTestClass).GetMethod("Method");
-            Assert.IsTrue(contractsManager.ValidateAssertionContracts(method, receiver, returnValue).FromStaticInvariant);
+            Assert.AreEqual(ContractStateEnum.Ok, contractsManager.ValidateAssertionContracts(method, receiver, returnValue).StaticInvariantState);
         }
     }
 }

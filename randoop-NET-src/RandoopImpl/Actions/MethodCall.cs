@@ -161,7 +161,7 @@ namespace Randoop
         // TODO: This method can be largely improved. For one, it should
         // be broken up into smaller methods depending on the nature of
         // the method (regular method, operator, property, etc.).
-        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts, ContractAssertion canGenerateContractAssertion)
+        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts, ContractState contractStates)
         {
             StringBuilder code = new StringBuilder();
             //return value
@@ -302,10 +302,10 @@ namespace Randoop
             var assertion = string.Empty;
             if (useRandoopContracts)
             {
-                assertion = new ContractAssertionGenerator().Compute(method, newValueName, arguments[0], canGenerateContractAssertion);
+                assertion = new RandoopContractAssertionGenerator().Compute(method, newValueName, arguments[0], contractStates);
             }
 
-            if (string.IsNullOrEmpty(assertion))
+            if (assertion.Contains("Assert.IsTrue") == false)
             {
                 assertion = new RegressionAssertionGenerator().GenerateRegressionAssertion(tempval, newValueName, timesReturnValRetrieved);
             }
@@ -319,10 +319,6 @@ namespace Randoop
 
             return code.ToString();
         }
-
-
-
-
 
         private void HandleSpecialName(StringBuilder code, bool isOverloadedOp, bool isCastOp, ref bool isSetItem, ref bool isItemOf, ref bool isGetItem)
         {
@@ -409,7 +405,7 @@ namespace Randoop
         }
 
         public override bool Execute(out ResultTuple ret, ResultTuple[] parameters,
-            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContracts, out ContractAssertion canGenerateContractAssertion)
+            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContracts, out ContractState contractStates)
         {
             long startTime = 0;
             Timer.QueryPerformanceCounter(ref startTime);
@@ -423,7 +419,7 @@ namespace Randoop
                 objects[i] = parameters[pair.planIndex].tuple[pair.resultIndex];
             }
 
-            canGenerateContractAssertion = new ContractAssertion();
+            contractStates = new ContractState();
             preconditionViolated = false;
             if (useRandoopContracts)
             {
@@ -550,7 +546,7 @@ namespace Randoop
             if (ret != null)
             {
                 CheckContracts(ret, ref contractViolated, ref retval);
-                canGenerateContractAssertion = new RandoopContractsManager().ValidateAssertionContracts(method, receiver, returnValue);
+                contractStates = new RandoopContractsManager().ValidateAssertionContracts(method, receiver, returnValue);
             }
 
             if (contractViolated)  //xiao.qu@us.abb.com adds

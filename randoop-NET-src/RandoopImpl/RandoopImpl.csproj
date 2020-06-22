@@ -89,9 +89,10 @@
     <Compile Include="Actions\ListConstructor.cs" />
     <Compile Include="Actions\MethodCall.cs" />
     <Compile Include="Actions\PrimitiveValueCreator.cs" />
-    <Compile Include="ContractAssertionGenerator.cs" />
+    <Compile Include="RandoopContractAssertionGenerator.cs" />
     <Compile Include="ExecutionTimeTracking.cs" />
-    <Compile Include="RandoopContracts\ContractAssertion.cs" />
+    <Compile Include="RandoopContracts\ContractState.cs" />
+    <Compile Include="RandoopContracts\ContractStateEnum.cs" />
     <Compile Include="RandoopContracts\InvalidRandoopContractException.cs" />
     <Compile Include="RandoopContracts\RandoopContractsManager.cs" />
     <Compile Include="RegressionAssertionGenerator.cs" />

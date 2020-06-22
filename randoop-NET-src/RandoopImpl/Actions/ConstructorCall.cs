@@ -128,7 +128,7 @@ namespace Randoop
             }
         }
 
-        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts, ContractAssertion canGenerateContractAssertion
+        public override string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts, ContractState contractStates
             )
         {
             // TODO assert that arguments.Count is correct.
@@ -154,7 +154,7 @@ namespace Randoop
             var assertion = string.Empty;
             if (useRandoopContracts)
             {
-                assertion = new ContractAssertionGenerator().Compute(constructor, newValueName, canGenerateContractAssertion);
+                assertion = new RandoopContractAssertionGenerator().Compute(constructor, newValueName, contractStates);
             }
 
             code.Append(assertion);
@@ -172,11 +172,11 @@ namespace Randoop
         //TODO Diana: check for precondition violations if useRandoopContracts = true
         //TODO Diana: compute canGenerateContractAssertions
         public override bool Execute(out ResultTuple ret, ResultTuple[] results,
-            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContracts, out ContractAssertion canGenerateContractAssertion)
+            Plan.ParameterChooser[] parameterMap, TextWriter executionLog, TextWriter debugLog, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContracts, out ContractState contractStates)
         {
             contractViolated = false;
             preconditionViolated = false;
-            canGenerateContractAssertion = new ContractAssertion();
+            contractStates = new ContractState();
 
             long startTime = 0;
             Timer.QueryPerformanceCounter(ref startTime);
@@ -307,7 +307,7 @@ namespace Randoop
 
                 }
 
-                canGenerateContractAssertion = new RandoopContractsManager().ValidateAssertionContracts(constructor, newObject);
+                contractStates = new RandoopContractsManager().ValidateAssertionContracts(constructor, newObject);
             }
 
             long endTime = 0;

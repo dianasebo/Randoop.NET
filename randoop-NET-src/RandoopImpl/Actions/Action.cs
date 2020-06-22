@@ -41,7 +41,7 @@ namespace Randoop
         /// <returns></returns>
         public abstract bool Execute(out ResultTuple ret,
             ResultTuple[] results, Plan.ParameterChooser[] parameterMap, TextWriter executionLog,
-            TextWriter writer, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContractsout, out ContractAssertion canGenerateContractAssertion);
+            TextWriter writer, out bool preconditionViolated, out Exception exceptionThrown, out bool contractViolated, bool forbidNull, bool useRandoopContractsout, out ContractState contractStates);
 
         public abstract Type[] ParameterTypes { get; }
 
@@ -81,7 +81,7 @@ namespace Randoop
 
         public abstract string MemberName { get; }
 
-        public abstract string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts, ContractAssertion canGenerateContractAssertion);
+        public abstract string ToCSharpCode(ReadOnlyCollection<string> arguments, string newValueName, bool useRandoopContracts, ContractState contractStates);
 
     }
 

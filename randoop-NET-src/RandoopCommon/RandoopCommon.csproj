@@ -93,7 +93,7 @@
     <Compile Include="Environment.cs" />
     <Compile Include="EquivalenceClass.cs" />
     <Compile Include="NLogConfigManager.cs" />
-    <Compile Include="Reducer.cs" />
+    <Compile Include="EquivalenceBasedReducer.cs" />
     <Compile Include="SequenceBasedEquivalenceClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandoopBareExceptions.cs" />

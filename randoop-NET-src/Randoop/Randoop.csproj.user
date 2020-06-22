@@ -1,11 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <StartArguments>
-    </StartArguments>
+    <StartArguments>/configfiles:"c:\users\sebod\appdata\local\microsoft\visualstudio\16.0_6f1efaa4exp\extensions\diana loredana sebo\randoopextension\1.0\Randoop\config_files" /timelimit:120 /restart:10 /outputnormal /noexplorer /directorystrategy:ClassifyingByClass /outputdir:"E:\Licenta\XmlParser\src\Microsoft.Language.Xml\bin\Debug\netstandard2.0\randoop_output" "E:\Licenta\XmlParser\src\Microsoft.Language.Xml\bin\Debug\netstandard2.0\Microsoft.Language.Xml.dll"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <StartArguments>/configfiles:"c:\users\sebod\appdata\local\microsoft\visualstudio\16.0_6f1efaa4exp\extensions\diana loredana sebo\randoopextension\1.0\Randoop\config_files" /noexplorer /timelimit:30 /restart:30 /outputnormal /directorystrategy:ClassifyingByClass /outputdir:"E:\Licenta\ClassLibraryForTest\bin\Debug\netstandard2.0\randoop_output" "E:\Licenta\ClassLibraryForTest\bin\Debug\netstandard2.0\ClassLibraryForTest.dll"</StartArguments>
+    <StartArguments>/configfiles:"c:\users\sebod\appdata\local\microsoft\visualstudio\16.0_6f1efaa4exp\extensions\diana loredana sebo\randoopextension\1.0\Randoop\config_files" /timelimit:120 /restart:10 /outputnormal /noexplorer /directorystrategy:ClassifyingByClass /outputdir:"E:\Licenta\MyClassLibrary\MyClassLibrary\bin\Debug\netstandard2.0\randoop_output" "E:\Licenta\MyClassLibrary\MyClassLibrary\bin\Debug\netstandard2.0\MyClassLibrary.dll"</StartArguments>
   </PropertyGroup>
   <PropertyGroup>
     <PublishUrlHistory />
